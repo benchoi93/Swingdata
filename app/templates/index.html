@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swing Scooter Visualizer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background: #111;
+            color: #fff;
+        }
+
+        #control-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            width: 300px;
+        }
+
+        #map-container {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #error-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            z-index: 999;
+            display: none;
+            max-width: 80%;
+        }
+    </style>
+    <!-- Use a specific, recent version of deck.gl that definitely includes TileLayer -->
+    <script src="https://unpkg.com/deck.gl@8.9.33/dist.min.js"></script>
+
+    <!-- Mapbox GL JS (needed if we use MapboxLayer, but we are using TileLayer here. 
+         However, DeckGL might look for it. Keeping it safe.) -->
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+</head>
+
+<body>
+    <div id="error-display"></div>
+    <script>
+        window.onerror = function (message, source, lineno, colno, error) {
+            const d = document.getElementById('error-display');
+            d.style.display = 'block';
+            d.innerText = "Error: " + message + "\nLine: " + lineno;
+        };
+    </script>
+    <div id="control-panel">
+        <h2>Swing Data</h2>
+        <div id="stats">Loading stats...</div>
+
+        <div style="margin: 15px 0;">
+            <label style="display:block; font-size: 12px; color: #aaa;">Start Time</label>
+            <input type="datetime-local" id="start-time"
+                style="width: 100%; box-sizing: border-box; background: #333; color: white; border: 1px solid #555;">
+
+            <label style="display:block; font-size: 12px; color: #aaa; margin-top: 5px;">End Time</label>
+            <input type="datetime-local" id="end-time"
+                style="width: 100%; box-sizing: border-box; background: #333; color: white; border: 1px solid #555;">
+        </div>
+
+        <button onclick="loadSample()"
+            style="width: 100%; padding: 8px; cursor: pointer; background: #d35400; color: white; border: none; font-weight: bold;">Load
+            Data in Range</button>
+
+        <hr style="border-color: #444; margin: 15px 0;">
+
+        <!-- Animation Controls -->
+        <div>
+            <h3 style="margin: 5px 0;">Simulation</h3>
+            <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                <button id="play-btn" onclick="togglePlay()" disabled
+                    style="flex:1; padding: 5px; cursor: pointer; background: #27ae60; color: white; border: none;">Play</button>
+                <button onclick="resetAnimation()"
+                    style="padding: 5px; cursor: pointer; background: #555; color: white; border: none;">Reset</button>
+            </div>
+
+            <label style="display:block; font-size: 12px; color: #aaa;">Speed: <span id="speed-val">50x</span></label>
+            <input type="range" id="speed-slider" min="1" max="500" value="50" style="width: 100%;">
+
+            <label style="display:block; font-size: 12px; color: #aaa;">Time: <span
+                    id="current-time-display">-</span></label>
+            <input type="range" id="time-slider" min="0" max="100" value="0" step="0.1" style="width: 100%;"
+                oninput="manualTimeChange()">
+        </div>
+
+        <div id="details-panel"></div>
+    </div>
+    <div id="map-container"></div>
+    <script>
+        // ... (rest of the script)
+        // We will target the script block below to update functions
+
+        // Tooltip element
+        const tooltip = document.createElement('div');
+        tooltip.style.position = 'absolute';
+        tooltip.style.zIndex = '1';
+        tooltip.style.pointerEvents = 'none';
+        tooltip.style.background = 'rgba(0, 0, 0, 0.8)';
+        tooltip.style.color = '#fff';
+        tooltip.style.padding = '8px';
+        tooltip.style.borderRadius = '4px';
+        tooltip.style.fontSize = '12px';
+        tooltip.style.display = 'none';
+        document.body.appendChild(tooltip);
+
+        // Helper to generate color from string
+        function stringToColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            // Generate distinct vibrant colors
+            // HSL to RGB conversion roughly or just explicit RGB manipulation
+            const h = Math.abs(hash) % 360;
+            return hslToRgb(h / 360, 0.8, 0.6);
+        }
+
+        function hslToRgb(h, s, l) {
+            let r, g, b;
+            if (s == 0) {
+                r = g = b = l; // achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                }
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
+        const deckgl = new deck.DeckGL({
+            container: 'map-container',
+            initialViewState: {
+                longitude: 126.9780,
+                latitude: 37.5665,
+                zoom: 11,
+                pitch: 0,
+                bearing: 0
+            },
+            controller: true,
+            layers: [
+                // Background Layer (Carto Dark Matter)
+                new deck.TileLayer({
+                    id: 'map-layer',
+                    data: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                    minZoom: 0,
+                    maxZoom: 19,
+                    tileSize: 256,
+                    renderSubLayers: props => {
+                        const {
+                            bbox: { west, south, east, north }
+                        } = props.tile;
+                        return new deck.BitmapLayer(props, {
+                            data: null,
+                            image: props.data,
+                            bounds: [west, south, east, north]
+                        });
+                    }
+                })
+            ]
+        });
+
+        // Animation State
+        let loadedData = [];
+        let timeRange = { min: 0, max: 0, duration: 0 };
+        let animationTime = 0;
+        let isPlaying = false;
+        let animationFrameId = null;
+        let lastFrameTime = 0;
+        let playSpeed = 50; // multiplier (x real time)
+
+        function formatTimestamp(ts) {
+            return new Date(ts * 1000).toLocaleString();
+        }
+
+        // Helper to format date for input[type=datetime-local]
+        function toLocalISO(dateStr) {
+            if (!dateStr) return '';
+            // backend sends ISO, we can try to take first 16 chars "YYYY-MM-DDTHH:MM"
+            return dateStr.substring(0, 16);
+        }
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                if (data.error) {
+                    document.getElementById('stats').innerText = data.error;
+                } else {
+                    document.getElementById('stats').innerHTML = `
+                        <strong>Total Records:</strong> ${data.total_records.toLocaleString()}<br>
+                        <strong>Data Range:</strong><br>
+                        ${data.start_date}<br>to ${data.end_date}
+                    `;
+
+                    // Auto-fill inputs if empty
+                    const s = document.getElementById('start-time');
+                    const e = document.getElementById('end-time');
+                    if (!s.value && data.start_date) s.value = toLocalISO(data.start_date);
+                    if (!e.value && data.end_date) e.value = toLocalISO(data.end_date);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadSample() {
+            try {
+                const btn = document.querySelector('button');
+                btn.innerText = "Loading...";
+                btn.disabled = true;
+
+                // Get filter values
+                const start = document.getElementById('start-time').value;
+                const end = document.getElementById('end-time').value;
+
+                // Construct URL
+                // Use a larger limit for ranges, but keep it safe. Backend default is 5000.
+                let url = `/api/sample?limit=50000`;
+                if (start) url += `&start=${start}`;
+                if (end) url += `&end=${end}`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert("Error: " + data.error);
+                    btn.innerText = "Load Data in Range";
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Add layers
+                const layers = [
+                    // Background reused
+                    new deck.TileLayer({
+                        id: 'base-map-layer',
+                        data: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                        minZoom: 0,
+                        maxZoom: 19,
+                        tileSize: 256,
+                        renderSubLayers: props => {
+                            const { bbox: { west, south, east, north } } = props.tile;
+                            return new deck.BitmapLayer(props, {
+                                data: null,
+                                image: props.data,
+                                bounds: [west, south, east, north]
+                            });
+                        }
+                    }),
+                    new deck.PathLayer({
+                        id: 'path-layer',
+                        data: data,
+                        pickable: true,
+                        widthScale: 1,
+                        widthMinPixels: 2,
+                        getPath: d => d.path.map(p => [p[2], p[1]]), // [lon, lat]
+                        getColor: d => stringToColor(d.route_id),
+                        getWidth: 5,
+                        autoHighlight: true,
+                        highlightColor: [255, 255, 255, 200], // White glow on hover
+                        onHover: info => {
+                            if (info.object) {
+                                tooltip.style.display = 'block';
+                                tooltip.style.left = info.x + 'px';
+                                tooltip.style.top = info.y + 'px';
+                                tooltip.innerText = `Route: ${info.object.route_id}`;
+                            } else {
+                                tooltip.style.display = 'none';
+                            }
+                        },
+                        onClick: info => {
+                            if (info.object) {
+                                const d = info.object;
+                                const details = `
+                                    <h3>Selected Route</h3>
+                                    <p><b>ID:</b> ${d.route_id}</p>
+                                    <p><b>Start:</b> ${d.start_timestamp}</p>
+                                    <p><b>End:</b> ${d.end_timestamp}</p>
+                                    <p><b>Points:</b> ${d.path.length}</p>
+                                `;
+                                const div = document.getElementById('details-panel');
+                                if (div) div.innerHTML = details;
+                            }
+                        }
+                    })
+                ];
+
+                deckgl.setProps({ layers });
+
+                // Re-center if data exists
+                if (data.length > 0 && data[0].path.length > 0) {
+                    const firstPt = data[0].path[0];
+                    deckgl.setProps({
+                        initialViewState: {
+                            longitude: firstPt[2],
+                            latitude: firstPt[1],
+                            zoom: 14,
+                            transitionDuration: 1000,
+                            transitionInterpolator: new deck.FlyToInterpolator()
+                        }
+                    });
+                } else {
+                    alert("No data found in this range.");
+                }
+
+                btn.innerText = "Load Data in Range";
+                btn.disabled = false;
+
+            } catch (err) {
+                console.error(err);
+                alert("Failed to load sample data");
+                document.querySelector('button').innerText = "Load Data in Range";
+                document.querySelector('button').disabled = false;
+            }
+        }
+
+        // --- Animation Logic ---
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            document.getElementById('play-btn').innerText = isPlaying ? "Pause" : "Play";
+            document.getElementById('play-btn').style.background = isPlaying ? "#e74c3c" : "#27ae60";
+
+            if (isPlaying) {
+                lastFrameTime = performance.now();
+                animate();
+            } else {
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            }
+        }
+
+        function resetAnimation() {
+            isPlaying = false;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationTime = 0;
+            document.getElementById('time-slider').value = 0;
+            document.getElementById('play-btn').innerText = "Play";
+            document.getElementById('play-btn').style.background = "#27ae60";
+            updateTimeDisplay();
+            renderLayers();
+        }
+
+        function manualTimeChange() {
+            animationTime = parseFloat(document.getElementById('time-slider').value);
+            updateTimeDisplay();
+            renderLayers();
+        }
+
+        function updateTimeDisplay() {
+            const currentTs = timeRange.min + animationTime;
+            document.getElementById('current-time-display').innerText = formatTimestamp(currentTs);
+        }
+
+        function animate() {
+            if (!isPlaying) return;
+
+            const now = performance.now();
+            const dt = (now - lastFrameTime) / 1000; // seconds
+            lastFrameTime = now;
+
+            // Speed control
+            playSpeed = parseFloat(document.getElementById('speed-slider').value);
+            document.getElementById('speed-val').innerText = playSpeed + "x";
+
+            animationTime += dt * playSpeed;
+
+            // Loop
+            if (animationTime > timeRange.duration) {
+                animationTime = 0;
+            }
+
+            document.getElementById('time-slider').value = animationTime;
+            updateTimeDisplay();
+            renderLayers();
+
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        function renderLayers() {
+            const TRAIL_LENGTH = 180; // 3 minutes trail
+
+            const layers = [
+                new deck.TileLayer({
+                    id: 'base-map-layer',
+                    data: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                    minZoom: 0,
+                    maxZoom: 19,
+                    tileSize: 256,
+                    renderSubLayers: props => {
+                        const { bbox: { west, south, east, north } } = props.tile;
+                        return new deck.BitmapLayer(props, {
+                            data: null,
+                            image: props.data,
+                            bounds: [west, south, east, north]
+                        });
+                    }
+                })
+            ];
+
+            if (loadedData.length > 0) {
+                layers.push(
+                    new deck.TripsLayer({
+                        id: 'trips-layer',
+                        data: loadedData,
+                        getPath: d => d.trips,
+                        getTimestamps: d => d.trips.map(p => p[2]),
+                        getColor: d => stringToColor(d.route_id),
+                        opacity: 0.8,
+                        widthMinPixels: 3,
+                        rounded: true,
+                        trailLength: TRAIL_LENGTH,
+                        currentTime: animationTime,
+                        shadowEnabled: false,
+                        pickable: true,
+                        onHover: info => {
+                            if (info.object) {
+                                tooltip.style.display = 'block';
+                                tooltip.style.left = info.x + 'px';
+                                tooltip.style.top = info.y + 'px';
+                                tooltip.innerText = `Route: ${info.object.route_id}`;
+                            } else {
+                                tooltip.style.display = 'none';
+                            }
+                        },
+                        onClick: info => {
+                            if (info.object) {
+                                const d = info.object;
+                                const details = `
+                                    <h3>Selected Route</h3>
+                                    <p><b>ID:</b> ${d.route_id}</p>
+                                    <p><b>Start:</b> ${d.start_timestamp}</p>
+                                    <p><b>End:</b> ${d.end_timestamp}</p>
+                                    <p><b>Points:</b> ${d.path.length}</p>
+                                `;
+                                const div = document.getElementById('details-panel');
+                                if (div) div.innerHTML = details;
+                            }
+                        }
+                    })
+                );
+            }
+
+            deckgl.setProps({ layers });
+        }
+
+        fetchStats();
+    </script>
+</body>
+
+</html>
