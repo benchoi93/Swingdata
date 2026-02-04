@@ -160,7 +160,29 @@
         <!-- ANALYSIS TAB CONTENT (Placeholder) -->
         <div id="tab-content-analysis" style="display:none;">
             <h3 style="margin: 5px 0;">Analysis</h3>
-            <p style="font-size: 12px; color: #aaa;">Analysis controls will be added here.</p>
+
+            <div style="margin-bottom: 10px;">
+                <label style="display:block; font-size: 12px; color:#aaa;">Visualization Type</label>
+                <select id="analysis-type" onchange="renderLayers()"
+                    style="width:100%; background:#333; color:white; border:1px solid #555;">
+                    <option value="none">None</option>
+                    <option value="origin">Origin Density</option>
+                    <option value="dest">Destination Density</option>
+                    <option value="all">All Points Density</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <label style="display:block; font-size: 12px; color:#aaa;">Result Radius (Pixels)</label>
+                <input type="range" id="radius-slider" min="5" max="100" value="20" style="width:100%;"
+                    oninput="renderLayers()">
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <label style="display:block; font-size: 12px; color:#aaa;">Intensity</label>
+                <input type="range" id="intensity-slider" min="0.1" max="10" step="0.1" value="1" style="width:100%;"
+                    oninput="renderLayers()">
+            </div>
         </div>
 
         <div id="details-panel"></div>
@@ -457,9 +479,20 @@
                         // We need [lon, lat, relative_ts]
                         return [p[2], p[1], p[0] - minTs];
                     });
+
+                    // For static PathLayer, we need [[lon, lat], [lon, lat], ...]
+                    const simplePath = d.path.map(p => [p[2], p[1]]);
+
+                    // For OD Density, we need start and end points
+                    const startPt = d.path[0];
+                    const endPt = d.path[d.path.length - 1];
+
                     return {
                         ...d, // keep route_id, etc.
-                        trips: trips
+                        trips: trips,
+                        pathCoordinates: simplePath,
+                        origin: [startPt[2], startPt[1]], // [lon, lat]
+                        dest: [endPt[2], endPt[1]]      // [lon, lat]
                     };
                 });
 
@@ -572,6 +605,25 @@
             // TRAIL_LENGTH in seconds (e.g., 300s = 5 mins)
             const TRAIL_LENGTH = 300;
 
+            const analysisTypeEl = document.getElementById('analysis-type');
+            const analysisType = analysisTypeEl ? analysisTypeEl.value : 'none';
+
+            const radiusEl = document.getElementById('radius-slider');
+            const radiusVal = radiusEl ? parseInt(radiusEl.value) : 20;
+
+            const intensityEl = document.getElementById('intensity-slider');
+            const intensityVal = intensityEl ? parseFloat(intensityEl.value) : 1.0;
+
+            // Check if we are in analysis tab
+            // "switchTab" sets currentTab logic? No, currentTab var is not defined in this scope??
+            // Ah, I need to check the scope. switchTab is minimal UI toggle only.
+            // But renderLayers is called by onchange. 
+            // I should check visibility of tab content or just rely on analysisType value if visible.
+            // Actually, let's just rely on analysisType. If user switches tab, controls hide but value persists.
+            // Better: only show analysis layers if tab is visible.
+
+            const isAnalysisTab = document.getElementById('tab-content-analysis').style.display === 'block';
+
             const layers = [
                 new deck.TileLayer({
                     id: 'base-map-layer',
@@ -591,49 +643,86 @@
             ];
 
             if (loadedData.length > 0) {
-                layers.push(
-                    new deck.TripsLayer({
-                        id: 'trips-layer',
-                        data: loadedData,
-                        getPath: d => d.trips,
-                        // each point in trips matches [lon, lat, relative_ts]
-                        getTimestamps: d => d.trips.map(p => p[2]),
-                        getColor: d => stringToColor(d.route_id),
-                        opacity: 0.8,
-                        widthMinPixels: 4,
-                        rounded: true,
-                        trailLength: TRAIL_LENGTH,
-                        currentTime: animationTime,
-                        shadowEnabled: false,
-                        pickable: true,
-                        autoHighlight: true,
-                        highlightColor: [255, 255, 255, 255],
-                        onHover: info => {
-                            if (info.object) {
-                                tooltip.style.display = 'block';
-                                tooltip.style.left = info.x + 'px';
-                                tooltip.style.top = info.y + 'px';
-                                tooltip.innerText = `Route: ${info.object.route_id}`;
-                            } else {
-                                tooltip.style.display = 'none';
-                            }
-                        },
-                        onClick: info => {
-                            if (info.object) {
-                                const d = info.object;
-                                const details = `
-                                    <h3>Selected Route</h3>
-                                    <p><b>ID:</b> ${d.route_id}</p>
-                                    <p><b>Start:</b> ${d.start_timestamp}</p>
-                                    <p><b>End:</b> ${d.end_timestamp}</p>
-                                    <p><b>Points:</b> ${d.path.length}</p>
-                                `;
-                                const div = document.getElementById('details-panel');
-                                if (div) div.innerHTML = details;
-                            }
-                        }
-                    })
-                );
+                // 1. VISUALIZER TAB LAYERS
+                if (!isAnalysisTab) {
+                    // Static Path Layer (All loaded trajectories)
+                    layers.push(
+                        new deck.PathLayer({
+                            id: 'path-layer',
+                            data: loadedData,
+                            pickable: true,
+                            widthScale: 1,
+                            widthMinPixels: 1,
+                            getPath: d => d.pathCoordinates,
+                            getColor: [100, 100, 100, 100], // Faint static path
+                            getWidth: 2,
+                            autoHighlight: true,
+                            highlightColor: [255, 255, 255, 200]
+                        })
+                    );
+
+                    layers.push(
+                        new deck.TripsLayer({
+                            id: 'trips-layer',
+                            data: loadedData,
+                            getPath: d => d.trips,
+                            getTimestamps: d => d.trips.map(p => p[2]),
+                            getColor: d => stringToColor(d.route_id),
+                            opacity: 0.8,
+                            widthMinPixels: 4,
+                            rounded: true,
+                            trailLength: TRAIL_LENGTH,
+                            currentTime: animationTime,
+                            shadowEnabled: false,
+                            pickable: true,
+                            autoHighlight: true,
+                            highlightColor: [255, 255, 255, 255],
+                            onHover: info => {
+                                if (info.object) {
+                                    tooltip.style.display = 'block';
+                                    tooltip.style.left = info.x + 'px';
+                                    tooltip.style.top = info.y + 'px';
+                                    tooltip.innerText = `Route: ${info.object.route_id}`;
+                                } else {
+                                    tooltip.style.display = 'none';
+                                }
+                            },
+                        })
+                    );
+                }
+
+                // 2. ANALYSIS TAB LAYERS
+                if (isAnalysisTab && (analysisType === 'origin' || analysisType === 'dest' || analysisType === 'all')) {
+                    let points;
+                    if (analysisType === 'all') {
+                        // Flatten all path coordinates from all trips
+                        points = loadedData.flatMap(d => d.pathCoordinates);
+                    } else {
+                        points = loadedData.map(d => analysisType === 'origin' ? d.origin : d.dest);
+                    }
+
+                    // HeatmapLayer requires the aggregation module which might not be in the core script?
+                    // The standalone deck.gl bundle usually includes AggregationLayers. 
+                    // Let's assume standard deck.HeatmapLayer works.
+                    layers.push(
+                        new deck.HeatmapLayer({
+                            id: 'od-heatmap',
+                            data: points,
+                            getPosition: d => d,
+                            radiusPixels: radiusVal,
+                            intensity: intensityVal,
+                            threshold: 0.05,
+                            colorRange: [
+                                [255, 255, 178],
+                                [254, 204, 92],
+                                [253, 141, 60],
+                                [240, 59, 32],
+                                [189, 0, 38]
+                            ],
+                            pickable: false // Heatmaps usually not pickable for individual points
+                        })
+                    );
+                }
             }
 
             deckgl.setProps({ layers });
