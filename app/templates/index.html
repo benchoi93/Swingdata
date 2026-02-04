@@ -169,6 +169,7 @@
                     <option value="origin">Origin Density</option>
                     <option value="dest">Destination Density</option>
                     <option value="all">All Points Density</option>
+                    <option value="flow">Directional Flow</option>
                 </select>
             </div>
 
@@ -237,6 +238,23 @@
                 b = hue2rgb(p, q, h - 1 / 3);
             }
             return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
+        function toRadians(deg) { return deg * Math.PI / 180; }
+        function toDegrees(rad) { return rad * 180 / Math.PI; }
+
+        function getBearing(startLat, startLng, destLat, destLng) {
+            startLat = toRadians(startLat);
+            startLng = toRadians(startLng);
+            destLat = toRadians(destLat);
+            destLng = toRadians(destLng);
+
+            const y = Math.sin(destLng - startLng) * Math.cos(destLat);
+            const x = Math.cos(startLat) * Math.sin(destLat) -
+                Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng);
+            let brng = Math.atan2(y, x);
+            brng = toDegrees(brng);
+            return (brng + 360) % 360;
         }
 
         const deckgl = new deck.DeckGL({
@@ -692,36 +710,79 @@
                 }
 
                 // 2. ANALYSIS TAB LAYERS
-                if (isAnalysisTab && (analysisType === 'origin' || analysisType === 'dest' || analysisType === 'all')) {
-                    let points;
-                    if (analysisType === 'all') {
-                        // Flatten all path coordinates from all trips
-                        points = loadedData.flatMap(d => d.pathCoordinates);
-                    } else {
-                        points = loadedData.map(d => analysisType === 'origin' ? d.origin : d.dest);
-                    }
+                if (isAnalysisTab) {
+                    if (analysisType === 'flow') {
+                        // Segment paths and color by bearing
+                        let segments = [];
 
-                    // HeatmapLayer requires the aggregation module which might not be in the core script?
-                    // The standalone deck.gl bundle usually includes AggregationLayers. 
-                    // Let's assume standard deck.HeatmapLayer works.
-                    layers.push(
-                        new deck.HeatmapLayer({
-                            id: 'od-heatmap',
-                            data: points,
-                            getPosition: d => d,
-                            radiusPixels: radiusVal,
-                            intensity: intensityVal,
-                            threshold: 0.05,
-                            colorRange: [
-                                [255, 255, 178],
-                                [254, 204, 92],
-                                [253, 141, 60],
-                                [240, 59, 32],
-                                [189, 0, 38]
-                            ],
-                            pickable: false // Heatmaps usually not pickable for individual points
-                        })
-                    );
+                        // Map intensity slider (0.1 - 10) to Alpha (5 - 200)
+                        const alpha = Math.min(255, Math.max(5, intensityVal * 20));
+
+                        loadedData.forEach(d => {
+                            const path = d.path; // [[ts, lat, lon], ...]
+                            for (let i = 0; i < path.length - 1; i++) {
+                                const p1 = path[i];
+                                const p2 = path[i + 1];
+                                // Check for valid points
+                                if (p1[1] === p2[1] && p1[2] === p2[2]) continue;
+
+                                const bearing = getBearing(p1[1], p1[2], p2[1], p2[2]);
+                                const rgb = hslToRgb(bearing / 360, 1.0, 0.5);
+                                const color = [...rgb, alpha];
+
+                                segments.push({
+                                    path: [[p1[2], p1[1]], [p2[2], p2[1]]], // [lon, lat] pairs
+                                    color: color
+                                });
+                            }
+                        });
+
+                        layers.push(
+                            new deck.PathLayer({
+                                id: 'flow-layer',
+                                data: segments,
+                                pickable: true,
+                                widthScale: 1,
+                                widthMinPixels: 1,
+                                getPath: d => d.path,
+                                getColor: d => d.color,
+                                getWidth: 3,
+                                parameters: {
+                                    blend: true,
+                                    blendFunc: [770, 1], // gl.SRC_ALPHA, gl.ONE
+                                    depthTest: false
+                                }
+                            })
+                        );
+                    }
+                    else if (analysisType === 'origin' || analysisType === 'dest' || analysisType === 'all') {
+                        let points;
+                        if (analysisType === 'all') {
+                            // Flatten all path coordinates from all trips
+                            points = loadedData.flatMap(d => d.pathCoordinates);
+                        } else {
+                            points = loadedData.map(d => analysisType === 'origin' ? d.origin : d.dest);
+                        }
+
+                        layers.push(
+                            new deck.HeatmapLayer({
+                                id: 'od-heatmap',
+                                data: points,
+                                getPosition: d => d,
+                                radiusPixels: radiusVal,
+                                intensity: intensityVal,
+                                threshold: 0.05,
+                                colorRange: [
+                                    [255, 255, 178],
+                                    [254, 204, 92],
+                                    [253, 141, 60],
+                                    [240, 59, 32],
+                                    [189, 0, 38]
+                                ],
+                                pickable: false
+                            })
+                        );
+                    }
                 }
             }
 
