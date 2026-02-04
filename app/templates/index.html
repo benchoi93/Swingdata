@@ -42,6 +42,29 @@
             display: none;
             max-width: 80%;
         }
+
+        /* Tab Styles */
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid #444;
+            margin-bottom: 15px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #888;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: #d35400;
+            color: white;
+            font-weight: bold;
+        }
     </style>
     <!-- Use a specific, recent version of deck.gl that definitely includes TileLayer -->
     <script src="https://unpkg.com/deck.gl@8.9.33/dist.min.js"></script>
@@ -60,9 +83,24 @@
             d.style.display = 'block';
             d.innerText = "Error: " + message + "\nLine: " + lineno;
         };
+
+        function switchTab(tab) {
+            // UI Toggle Only - No Map Changes
+            document.getElementById('tab-btn-viz').className = tab === 'viz' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('tab-btn-analysis').className = tab === 'analysis' ? 'tab-btn active' : 'tab-btn';
+
+            document.getElementById('tab-content-viz').style.display = tab === 'viz' ? 'block' : 'none';
+            document.getElementById('tab-content-analysis').style.display = tab === 'analysis' ? 'block' : 'none';
+        }
     </script>
     <div id="control-panel">
         <h2>Swing Data</h2>
+
+        <div class="tab-header">
+            <div id="tab-btn-viz" class="tab-btn active" onclick="switchTab('viz')">Visualizer</div>
+            <div id="tab-btn-analysis" class="tab-btn" onclick="switchTab('analysis')">Analysis</div>
+        </div>
+
         <div id="stats">Loading stats...</div>
 
         <div style="margin: 15px 0;">
@@ -99,8 +137,8 @@
 
         <hr style="border-color: #444; margin: 15px 0;">
 
-        <!-- Animation Controls -->
-        <div>
+        <!-- VISUALIZER TAB CONTENT -->
+        <div id="tab-content-viz">
             <h3 style="margin: 5px 0;">Simulation</h3>
             <div style="display: flex; gap: 5px; margin-bottom: 5px;">
                 <button id="play-btn" onclick="togglePlay()" disabled
@@ -117,6 +155,12 @@
                     id="current-time-display">-</span></label>
             <input type="range" id="time-slider" min="0" max="100" value="0" step="0.1" style="width: 100%;"
                 oninput="manualTimeChange()">
+        </div>
+
+        <!-- ANALYSIS TAB CONTENT (Placeholder) -->
+        <div id="tab-content-analysis" style="display:none;">
+            <h3 style="margin: 5px 0;">Analysis</h3>
+            <p style="font-size: 12px; color: #aaa;">Analysis controls will be added here.</p>
         </div>
 
         <div id="details-panel"></div>
