@@ -66,18 +66,36 @@
         <div id="stats">Loading stats...</div>
 
         <div style="margin: 15px 0;">
-            <label style="display:block; font-size: 12px; color: #aaa;">Start Time</label>
-            <input type="datetime-local" id="start-time"
+            <label style="display:block; font-size: 12px; color: #aaa;">Start Date</label>
+            <input type="date" id="start-time"
                 style="width: 100%; box-sizing: border-box; background: #333; color: white; border: 1px solid #555;">
 
-            <label style="display:block; font-size: 12px; color: #aaa; margin-top: 5px;">End Time</label>
-            <input type="datetime-local" id="end-time"
+            <label style="display:block; font-size: 12px; color: #aaa; margin-top: 5px;">End Date</label>
+            <input type="date" id="end-time"
                 style="width: 100%; box-sizing: border-box; background: #333; color: white; border: 1px solid #555;">
+
+            <label style="display:block; font-size: 12px; color: #aaa; margin-top: 5px;">Safety Limit (Max
+                Trips)</label>
+            <input type="number" id="limit-val" value="1000000" min="1000" max="10000000" step="10000"
+                style="width: 100%; box-sizing: border-box; background: #333; color: white; border: 1px solid #555;">
+
+            <div style="margin-top: 10px; display:flex; align-items:center;">
+                <input type="checkbox" id="region-filter" style="margin-right: 5px;" checked>
+                <label for="region-filter" style="font-size: 12px; color: #aaa; cursor:pointer;">Restrict to Map
+                    View</label>
+            </div>
         </div>
 
         <button onclick="loadSample()"
             style="width: 100%; padding: 8px; cursor: pointer; background: #d35400; color: white; border: none; font-weight: bold;">Load
             Data in Range</button>
+        <div id="load-status"
+            style="margin-top: 10px; font-size: 13px; color: #ddd; text-align: center; min-height: 1.2em;"></div>
+
+        <div id="progress-container" style="display:none; margin-top: 5px;">
+            <progress id="fetch-progress" value="0" max="100" style="width:100%; height: 8px;"></progress>
+            <div id="fetch-progress-text" style="font-size:10px; text-align:center; color:#aaa; margin-top:2px;"></div>
+        </div>
 
         <hr style="border-color: #444; margin: 15px 0;">
 
@@ -92,7 +110,8 @@
             </div>
 
             <label style="display:block; font-size: 12px; color: #aaa;">Speed: <span id="speed-val">50x</span></label>
-            <input type="range" id="speed-slider" min="1" max="500" value="50" style="width: 100%;">
+            <input type="range" id="speed-slider" min="0" max="4" step="0.1" value="1.7" style="width: 100%;"
+                oninput="updateSpeedVal(this.value)">
 
             <label style="display:block; font-size: 12px; color: #aaa;">Time: <span
                     id="current-time-display">-</span></label>
@@ -163,6 +182,10 @@
                 pitch: 0,
                 bearing: 0
             },
+            onViewStateChange: ({ viewState }) => {
+                currentViewState = viewState;
+                deckgl.setProps({ viewState });
+            },
             controller: true,
             layers: [
                 // Background Layer (Carto Dark Matter)
@@ -193,17 +216,40 @@
         let isPlaying = false;
         let animationFrameId = null;
         let lastFrameTime = 0;
+        let currentViewState = {
+            longitude: 126.9780,
+            latitude: 37.5665,
+            zoom: 11,
+            pitch: 0,
+            bearing: 0,
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
+
+        function getMapBounds() {
+            // Use WebMercatorViewport to calculate bounds
+            const viewport = new deck.WebMercatorViewport(currentViewState);
+            const bounds = viewport.getBounds();
+            // bounds is [west, south, east, north]
+            return {
+                west: bounds[0],
+                south: bounds[1],
+                east: bounds[2],
+                north: bounds[3]
+            };
+        }
+
         let playSpeed = 50; // multiplier (x real time)
 
         function formatTimestamp(ts) {
             return new Date(ts * 1000).toLocaleString();
         }
 
-        // Helper to format date for input[type=datetime-local]
-        function toLocalISO(dateStr) {
+        // Helper to format date for input[type=date]
+        function toLocalDate(dateStr) {
             if (!dateStr) return '';
-            // backend sends ISO, we can try to take first 16 chars "YYYY-MM-DDTHH:MM"
-            return dateStr.substring(0, 16);
+            // backend sends ISO "YYYY-MM-DDTHH:MM:SS", we want "YYYY-MM-DD"
+            return dateStr.substring(0, 10);
         }
 
         async function fetchStats() {
@@ -222,8 +268,8 @@
                     // Auto-fill inputs if empty
                     const s = document.getElementById('start-time');
                     const e = document.getElementById('end-time');
-                    if (!s.value && data.start_date) s.value = toLocalISO(data.start_date);
-                    if (!e.value && data.end_date) e.value = toLocalISO(data.end_date);
+                    if (!s.value && data.start_date) s.value = toLocalDate(data.start_date);
+                    if (!e.value && data.end_date) e.value = toLocalDate(data.end_date);
                 }
             } catch (err) {
                 console.error(err);
@@ -235,19 +281,83 @@
                 const btn = document.querySelector('button');
                 btn.innerText = "Loading...";
                 btn.disabled = true;
+                const statusDiv = document.getElementById('load-status');
+                statusDiv.innerText = "Fetching data...";
+                statusDiv.style.color = "#ddd";
+
+                // Show progress bar immediately (Query phase)
+                const progressContainer = document.getElementById('progress-container');
+                const progressBar = document.getElementById('fetch-progress');
+                const progressText = document.getElementById('fetch-progress-text');
+
+                progressContainer.style.display = 'block';
+                progressBar.removeAttribute('value'); // Indeterminate
+                progressText.innerText = "Querying Database...";
 
                 // Get filter values
-                const start = document.getElementById('start-time').value;
-                const end = document.getElementById('end-time').value;
+                const startVal = document.getElementById('start-time').value;
+                const endVal = document.getElementById('end-time').value;
+                const limit = document.getElementById('limit-val').value;
 
                 // Construct URL
-                // Use a larger limit for ranges, but keep it safe. Backend default is 5000.
-                let url = `/api/sample?limit=50000`;
-                if (start) url += `&start=${start}`;
-                if (end) url += `&end=${end}`;
+                // Append time to cover full days
+                let url = `/api/sample?limit=${limit}`;
+                if (startVal) url += `&start=${startVal} 00:00:00`;
+                if (endVal) url += `&end=${endVal} 23:59:59`;
+
+                // Region Filter
+                if (document.getElementById('region-filter').checked) {
+                    const bounds = getMapBounds();
+                    url += `&north=${bounds.north}&south=${bounds.south}&east=${bounds.east}&west=${bounds.west}`;
+                    console.log("Filtering by bounds:", bounds);
+                }
 
                 const response = await fetch(url);
-                const data = await response.json();
+
+                // --- Progress Bar Logic ---
+                const reader = response.body.getReader();
+                const contentLength = +response.headers.get('Content-Length');
+
+                let receivedLength = 0;
+                let chunks = [];
+
+                // Update status to Downloading
+                progressText.innerText = "Downloading...";
+
+                progressContainer.style.display = 'block';
+                progressBar.removeAttribute('value'); // Indeterminate if no content-length
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    chunks.push(value);
+                    receivedLength += value.length;
+
+                    if (contentLength) {
+                        const percent = (receivedLength / contentLength) * 100;
+                        progressBar.value = percent;
+                        progressText.innerText = `${Math.round(percent)}% (${(receivedLength / 1024 / 1024).toFixed(1)} MB)`;
+                    } else {
+                        progressText.innerText = `${(receivedLength / 1024 / 1024).toFixed(1)} MB downloaded`;
+                    }
+                }
+
+                // Hide progress bar
+                progressContainer.style.display = 'none';
+                statusDiv.innerText = "Parsing data...";
+
+                // Assemble chunks
+                let chunksAll = new Uint8Array(receivedLength);
+                let position = 0;
+                for (let chunk of chunks) {
+                    chunksAll.set(chunk, position);
+                    position += chunk.length;
+                }
+
+                // Decode and Parse values
+                const text = new TextDecoder("utf-8").decode(chunksAll);
+                const data = JSON.parse(text);
 
                 if (data.error) {
                     alert("Error: " + data.error);
@@ -256,86 +366,89 @@
                     return;
                 }
 
-                // Add layers
-                const layers = [
-                    // Background reused
-                    new deck.TileLayer({
-                        id: 'base-map-layer',
-                        data: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-                        minZoom: 0,
-                        maxZoom: 19,
-                        tileSize: 256,
-                        renderSubLayers: props => {
-                            const { bbox: { west, south, east, north } } = props.tile;
-                            return new deck.BitmapLayer(props, {
-                                data: null,
-                                image: props.data,
-                                bounds: [west, south, east, north]
-                            });
-                        }
-                    }),
-                    new deck.PathLayer({
-                        id: 'path-layer',
-                        data: data,
-                        pickable: true,
-                        widthScale: 1,
-                        widthMinPixels: 2,
-                        getPath: d => d.path.map(p => [p[2], p[1]]), // [lon, lat]
-                        getColor: d => stringToColor(d.route_id),
-                        getWidth: 5,
-                        autoHighlight: true,
-                        highlightColor: [255, 255, 255, 200], // White glow on hover
-                        onHover: info => {
-                            if (info.object) {
-                                tooltip.style.display = 'block';
-                                tooltip.style.left = info.x + 'px';
-                                tooltip.style.top = info.y + 'px';
-                                tooltip.innerText = `Route: ${info.object.route_id}`;
-                            } else {
-                                tooltip.style.display = 'none';
-                            }
-                        },
-                        onClick: info => {
-                            if (info.object) {
-                                const d = info.object;
-                                const details = `
-                                    <h3>Selected Route</h3>
-                                    <p><b>ID:</b> ${d.route_id}</p>
-                                    <p><b>Start:</b> ${d.start_timestamp}</p>
-                                    <p><b>End:</b> ${d.end_timestamp}</p>
-                                    <p><b>Points:</b> ${d.path.length}</p>
-                                `;
-                                const div = document.getElementById('details-panel');
-                                if (div) div.innerHTML = details;
-                            }
-                        }
-                    })
-                ];
+                if (!data || data.length === 0) {
+                    alert("No data found in this range.");
+                    statusDiv.innerText = "No data found.";
+                    statusDiv.style.color = "#e74c3c";
+                    btn.innerText = "Load Data in Range";
+                    btn.disabled = false;
+                    return;
+                }
 
-                deckgl.setProps({ layers });
+                statusDiv.innerText = `Loaded ${data.length.toLocaleString()} trips`;
+                statusDiv.style.color = "#2ecc71";
 
-                // Re-center if data exists
-                if (data.length > 0 && data[0].path.length > 0) {
-                    const firstPt = data[0].path[0];
+                // --- PREPARE DATA FOR ANIMATION ---
+                let minTs = Infinity;
+                let maxTs = -Infinity;
+
+                // First pass: find global min/max timestamps
+                // structure: d.path = [[ts, lat, lon], ...]
+                for (const d of data) {
+                    if (d.path && d.path.length > 0) {
+                        const start = d.path[0][0];
+                        const end = d.path[d.path.length - 1][0];
+                        if (start < minTs) minTs = start;
+                        if (end > maxTs) maxTs = end;
+                    }
+                }
+
+                if (minTs === Infinity) {
+                    alert("Data has no valid timestamps.");
+                    btn.innerText = "Load Data in Range";
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Set Time Range
+                timeRange.min = minTs;
+                timeRange.max = maxTs;
+                timeRange.duration = maxTs - minTs;
+
+                // Process data for Deck.gl
+                // We want: trips = [[lon, lat, relative_ts], ...]
+                loadedData = data.map(d => {
+                    const trips = d.path.map(p => {
+                        // p = [ts, lat, lon]
+                        // We need [lon, lat, relative_ts]
+                        return [p[2], p[1], p[0] - minTs];
+                    });
+                    return {
+                        ...d, // keep route_id, etc.
+                        trips: trips
+                    };
+                });
+
+                // Update UI Controls
+                const timeSlider = document.getElementById('time-slider');
+                timeSlider.max = timeRange.duration;
+                timeSlider.value = 0;
+
+                document.getElementById('play-btn').disabled = false;
+
+                // Re-center view
+                if (loadedData.length > 0 && loadedData[0].trips.length > 0) {
+                    const firstPt = loadedData[0].trips[0];
                     deckgl.setProps({
                         initialViewState: {
-                            longitude: firstPt[2],
+                            longitude: firstPt[0],
                             latitude: firstPt[1],
-                            zoom: 14,
+                            zoom: 13,
                             transitionDuration: 1000,
                             transitionInterpolator: new deck.FlyToInterpolator()
                         }
                     });
-                } else {
-                    alert("No data found in this range.");
                 }
+
+                // Reset animation state
+                resetAnimation();
 
                 btn.innerText = "Load Data in Range";
                 btn.disabled = false;
 
             } catch (err) {
                 console.error(err);
-                alert("Failed to load sample data");
+                alert("Failed to load sample data: " + err);
                 document.querySelector('button').innerText = "Load Data in Range";
                 document.querySelector('button').disabled = false;
             }
@@ -374,6 +487,7 @@
         }
 
         function updateTimeDisplay() {
+            // Display absolute time
             const currentTs = timeRange.min + animationTime;
             document.getElementById('current-time-display').innerText = formatTimestamp(currentTs);
         }
@@ -386,8 +500,10 @@
             lastFrameTime = now;
 
             // Speed control
-            playSpeed = parseFloat(document.getElementById('speed-slider').value);
-            document.getElementById('speed-val').innerText = playSpeed + "x";
+            // Logarithmic scale: 10^slider_val
+            const sliderVal = parseFloat(document.getElementById('speed-slider').value);
+            playSpeed = Math.pow(10, sliderVal);
+            document.getElementById('speed-val').innerText = Math.round(playSpeed).toLocaleString() + "x";
 
             animationTime += dt * playSpeed;
 
@@ -403,8 +519,14 @@
             animationFrameId = requestAnimationFrame(animate);
         }
 
+        function updateSpeedVal(val) {
+            const speed = Math.pow(10, val);
+            document.getElementById('speed-val').innerText = Math.round(speed).toLocaleString() + "x";
+        }
+
         function renderLayers() {
-            const TRAIL_LENGTH = 180; // 3 minutes trail
+            // TRAIL_LENGTH in seconds (e.g., 300s = 5 mins)
+            const TRAIL_LENGTH = 300;
 
             const layers = [
                 new deck.TileLayer({
@@ -430,15 +552,18 @@
                         id: 'trips-layer',
                         data: loadedData,
                         getPath: d => d.trips,
+                        // each point in trips matches [lon, lat, relative_ts]
                         getTimestamps: d => d.trips.map(p => p[2]),
                         getColor: d => stringToColor(d.route_id),
                         opacity: 0.8,
-                        widthMinPixels: 3,
+                        widthMinPixels: 4,
                         rounded: true,
                         trailLength: TRAIL_LENGTH,
                         currentTime: animationTime,
                         shadowEnabled: false,
                         pickable: true,
+                        autoHighlight: true,
+                        highlightColor: [255, 255, 255, 255],
                         onHover: info => {
                             if (info.object) {
                                 tooltip.style.display = 'block';

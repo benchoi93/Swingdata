@@ -6,7 +6,7 @@ from datetime import datetime
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-INPUT_FILE = '2023_05_Swing_Routes.csv'
+INPUT_DIR = 'D:/SwingData/raw'
 OUTPUT_DIR = 'D:/SwingData/data_parquet'
 CHUNK_SIZE = 10000
 
@@ -46,43 +46,53 @@ def preprocess():
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
         
-    print(f"Processing {INPUT_FILE}...")
+    # Get list of all CSV files
+    csv_files = glob.glob(os.path.join(INPUT_DIR, '*.csv'))
+    print(f"Found {len(csv_files)} CSV files in {INPUT_DIR}")
     
-    # Process in chunks
-    chunk_iter = pd.read_csv(INPUT_FILE, chunksize=CHUNK_SIZE)
-    
-    for i, chunk in enumerate(chunk_iter):
-        print(f"Processing chunk {i+1}...")
+    for file_index, input_file in enumerate(csv_files):
+        filename = os.path.basename(input_file)
+        file_base = os.path.splitext(filename)[0]
+        print(f"[{file_index+1}/{len(csv_files)}] Processing {filename}...")
         
-        # Apply parsing
-        chunk['path'] = chunk['routes'].apply(parse_route)
-        
-        # Select relevant columns
-        # Filter out rows where path is empty if desired, or keep them
-        chunk = chunk[chunk['path'].map(len) > 0]
-        
-        # We can drop the original 'routes' column to save space
-        # And maybe combine start_date/time into a single column
-        chunk['start_timestamp'] = pd.to_datetime(chunk['start_date'] + ' ' + chunk['start_time'])
-        chunk['end_timestamp'] = pd.to_datetime(chunk['end_date'] + ' ' + chunk['end_time'])
-        
-        keep_cols = [
-            'route_id', 'user_id', 'model', 'travel_time', 'distance', 
-            'start_timestamp', 'end_timestamp', 'path'
-        ]
-        
-        # Ensure we only check columns that exist (in case of schema drift)
-        existing_cols = [c for c in keep_cols if c in chunk.columns]
-        cleaned_chunk = chunk[existing_cols]
-        
-        # Convert to Table
-        table = pa.Table.from_pandas(cleaned_chunk)
-        
-        # Write to Parquet
-        # Partitioning by day might be good, but for now just chunks
-        output_file = os.path.join(OUTPUT_DIR, f"chunk_{i:04d}.parquet")
-        pq.write_table(table, output_file)
-        
+        try:
+            # Process in chunks
+            chunk_iter = pd.read_csv(input_file, chunksize=CHUNK_SIZE)
+            
+            for i, chunk in enumerate(chunk_iter):
+                print(f"  Processing chunk {i+1}...", end='\r')
+                
+                # Apply parsing
+                chunk['path'] = chunk['routes'].apply(parse_route)
+                
+                # Select relevant columns
+                # Filter out rows where path is empty if desired
+                chunk = chunk[chunk['path'].map(len) > 0]
+                
+                # Create timestamps
+                chunk['start_timestamp'] = pd.to_datetime(chunk['start_date'] + ' ' + chunk['start_time'])
+                chunk['end_timestamp'] = pd.to_datetime(chunk['end_date'] + ' ' + chunk['end_time'])
+                
+                keep_cols = [
+                    'route_id', 'user_id', 'model', 'travel_time', 'distance', 
+                    'start_timestamp', 'end_timestamp', 'path'
+                ]
+                
+                # Ensure we only check columns that exist (in case of schema drift)
+                existing_cols = [c for c in keep_cols if c in chunk.columns]
+                cleaned_chunk = chunk[existing_cols]
+                
+                # Convert to Table
+                table = pa.Table.from_pandas(cleaned_chunk)
+                
+                # Write to Parquet with unique name including source filename
+                output_file = os.path.join(OUTPUT_DIR, f"{file_base}_chunk_{i:04d}.parquet")
+                pq.write_table(table, output_file)
+            
+            print(f"\nCompleted {filename}")
+            
+        except Exception as e:
+            print(f"\nError processing {filename}: {e}")
 
 if __name__ == '__main__':
     preprocess()

@@ -6,30 +6,36 @@ import glob
 app = Flask(__name__)
 
 # Configuration
-# Pointing to the D: drive output directory
-DATA_DIR = 'D:/SwingData/data_parquet'
+# Pointing to the new Hive-partitioned directory
+DATA_DIR = 'D:/SwingData/data_hive'
 DB_CONNECTION = None
 
 def get_db_connection():
     """Establishes or returns a DuckDB connection to the Parquet files."""
     global DB_CONNECTION
     if DB_CONNECTION is None:
-        # We can query parquet files directly using glob syntax
-        # Check if we have any files first
-        parquet_files = glob.glob(os.path.join(DATA_DIR, "*.parquet"))
-        if not parquet_files:
-            print("No parquet files found in", DATA_DIR)
-            return None
-        
-        # Connect to in-memory DuckDB, but we will query the files directly
+        # Check if we have any files first (recursive check)
+        # In Hive structure: year=*/month=*/day=*/*.parquet
+        if not os.path.exists(DATA_DIR):
+             print("Data directory not found:", DATA_DIR)
+             return None
+             
+        # Connect to in-memory DuckDB
         DB_CONNECTION = duckdb.connect(database=':memory:')
         
-        # Create a view for easier access
-        # This wildcard works in DuckDB to read all matching files
-        data_path = os.path.join(DATA_DIR, "*.parquet").replace("\\", "/")
-        query = f"CREATE OR REPLACE VIEW scooter_data AS SELECT * FROM read_parquet('{data_path}');"
+        # Create a view using Hive Partitioning
+        # We point to the root directory and enable hive_partitioning
+        # Note: glob pattern should match the files, typically **/*.parquet
+        data_path = os.path.join(DATA_DIR, "**", "*.parquet").replace("\\", "/")
+        
+        # DuckDB auto-infers partitions from directory structure if hive_partitioning=1
+        query = f"CREATE OR REPLACE VIEW scooter_data AS SELECT * FROM read_parquet('{data_path}', hive_partitioning=1);"
         print(f"Creating view with query: {query}")
-        DB_CONNECTION.execute(query)
+        try:
+            DB_CONNECTION.execute(query)
+        except Exception as e:
+            print(f"Failed to create view: {e}")
+            return None
         
     return DB_CONNECTION
 
@@ -39,6 +45,16 @@ def index():
 
 @app.route('/api/stats')
 def stats():
+    # Optimization: Read from metadata.json if available
+    metadata_file = os.path.join(DATA_DIR, 'metadata.json')
+    if os.path.exists(metadata_file):
+        try:
+            import json
+            with open(metadata_file, 'r') as f:
+                return jsonify(json.load(f))
+        except Exception as e:
+            print(f"Error reading metadata: {e}")
+            
     con = get_db_connection()
     if not con:
         return jsonify({"error": "No data available yet"}), 503
@@ -72,15 +88,21 @@ def stats():
 
 @app.route('/api/sample')
 def sample():
-    """Return points for visualization, optionally filtered by time."""
+    """Return points for visualization, optionally filtered by time and region."""
     con = get_db_connection()
     if not con:
         return jsonify({"error": "No data available"}), 503
     
     # Get parameters
-    limit = request.args.get('limit', 5000) # Increased default sample
+    limit = request.args.get('limit', 5000)
     start_str = request.args.get('start')
     end_str = request.args.get('end')
+    
+    # Bounding box params
+    north = request.args.get('north')
+    south = request.args.get('south')
+    east = request.args.get('east')
+    west = request.args.get('west')
     
     try:
         query = "SELECT route_id, start_timestamp, end_timestamp, path FROM scooter_data"
@@ -91,6 +113,25 @@ def sample():
         if end_str:
             conditions.append(f"end_timestamp <= '{end_str}'")
             
+        # Region filtering
+        if north and south and east and west:
+            # Cast to float
+            n, s, e, w = float(north), float(south), float(east), float(west)
+            
+            # 1. Exact Spatial Filter (Points must start in bounds)
+            conditions.append(f"path[1][2] BETWEEN {s} AND {n}")
+            conditions.append(f"path[1][3] BETWEEN {w} AND {e}")
+            
+            # 2. Partition Pruning (Optimization)
+            # We filter by the grid columns so DuckDB skips irrelevant folders
+            min_grid_lat = int(s * 10) # FLOOR
+            max_grid_lat = int(n * 10)
+            min_grid_lon = int(w * 10)
+            max_grid_lon = int(e * 10)
+            
+            conditions.append(f"grid_lat BETWEEN {min_grid_lat} AND {max_grid_lat}")
+            conditions.append(f"grid_lon BETWEEN {min_grid_lon} AND {max_grid_lon}")
+            
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
             
@@ -100,7 +141,6 @@ def sample():
         print(f"Executing: {query}")
         df = con.execute(query).fetchdf()
         
-        # Recursive fix from before
         import numpy as np
         def to_list(x):
             if isinstance(x, np.ndarray):
