@@ -1,0 +1,112 @@
+% Weekly Progress Report — Beamer Template
+% E-Scooter Speed Safety Project (TR-C)
+% Prof. Seongjin Choi, UMN CEGE
+%
+% Tokens (delimited by << >>) are replaced by generate_weekly_slides.py.
+
+\documentclass[aspectratio=169, 10pt]{beamer}
+
+% ── Theme ─────────────────────────────────────────────────────────────────
+\usetheme{metropolis}
+
+% ── UMN Colors ────────────────────────────────────────────────────────────
+\definecolor{umnmaroon}{HTML}{7A0019}
+\definecolor{umngold}{HTML}{FFCC33}
+\definecolor{umnlightgray}{HTML}{F0F0F0}
+\definecolor{phasegreen}{HTML}{2E7D32}
+\definecolor{phaseyellow}{HTML}{F9A825}
+\definecolor{phasegray}{HTML}{BDBDBD}
+
+\setbeamercolor{frametitle}{bg=umnmaroon, fg=white}
+\setbeamercolor{title}{fg=umnmaroon}
+\setbeamercolor{subtitle}{fg=umnmaroon!70!black}
+\setbeamercolor{structure}{fg=umnmaroon}
+\setbeamercolor{alerted text}{fg=umngold!80!black}
+\setbeamercolor{progress bar}{fg=umngold, bg=umnmaroon!20}
+\setbeamercolor{block title}{bg=umnmaroon, fg=white}
+\setbeamercolor{block body}{bg=umnlightgray}
+
+% ── Fonts ─────────────────────────────────────────────────────────────────
+\usefonttheme{professionalfonts}
+\setbeamerfont{title}{size=\Large, series=\bfseries}
+\setbeamerfont{subtitle}{size=\normalsize}
+\setbeamerfont{frametitle}{size=\large, series=\bfseries}
+
+% ── Packages ──────────────────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{tabularx}
+\usepackage[export]{adjustbox}
+
+% ── Custom commands ───────────────────────────────────────────────────────
+% Phase progress bar
+\newlength{\barwidth}
+\setlength{\barwidth}{5cm}
+\newcommand{\phasebar}[3]{%
+  % Used inside tabular: #1 = phase name, #2 = fraction (0-1), #3 = label
+  \small\textbf{#1} &
+  \colorbox{phasegray!30}{\makebox[\barwidth][l]{%
+    \colorbox{phasegreen}{\makebox[\dimexpr#2\barwidth\relax][l]{\rule{0pt}{5pt}}}%
+  }} &
+  \small{#3} \\[2pt]%
+}
+
+% Compact itemize
+\setbeamertemplate{itemize items}[circle]
+\setlength{\leftmargini}{1.2em}
+\setlength{\leftmarginii}{1.0em}
+
+% Footer
+\setbeamertemplate{frame footer}{\footnotesize <<WEEK_SHORT>> \quad|\quad E-Scooter Speed Safety \quad|\quad Prof.\ Choi, UMN}
+
+% ── Metadata ──────────────────────────────────────────────────────────────
+\title{Weekly Progress Report}
+\subtitle{E-Scooter Speed Safety --- <<DATE_RANGE>>}
+\author{Prof.\ Seongjin Choi}
+\institute{Dept.\ of Civil, Environmental, and Geo-Engineering\\University of Minnesota, Twin Cities}
+\date{<<DATE_RANGE>>}
+
+% ══════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Title ─────────────────────────────────────────────────────────────────
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ── Executive Summary ─────────────────────────────────────────────────────
+\begin{frame}{Executive Summary}
+<<EXECUTIVE_SUMMARY>>
+\end{frame}
+
+% ── Phase Progress ────────────────────────────────────────────────────────
+\begin{frame}{Phase Progress Overview}
+<<PHASE_PROGRESS>>
+\end{frame}
+
+% ── Tasks Completed ───────────────────────────────────────────────────────
+<<TASKS_COMPLETED>>
+
+% ── Key Findings ──────────────────────────────────────────────────────────
+<<KEY_FINDINGS>>
+
+% ── New Figures ───────────────────────────────────────────────────────────
+<<FIGURES_BLOCK>>
+
+% ── Issues & Blockers ─────────────────────────────────────────────────────
+\begin{frame}{Issues \& Resolutions}
+<<ISSUES_BLOCKERS>>
+\end{frame}
+
+% ── Next Week Plan ────────────────────────────────────────────────────────
+\begin{frame}{Next Week Plan}
+<<NEXT_WEEK_PLAN>>
+\end{frame}
+
+\end{document}

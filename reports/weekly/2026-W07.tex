@@ -1,0 +1,313 @@
+% Weekly Progress Report — Beamer Template
+% E-Scooter Speed Safety Project (TR-C)
+% Prof. Seongjin Choi, UMN CEGE
+%
+% Tokens (delimited by << >>) are replaced by generate_weekly_slides.py.
+
+\documentclass[aspectratio=169, 10pt]{beamer}
+
+% ── Theme ─────────────────────────────────────────────────────────────────
+\usetheme{metropolis}
+
+% ── UMN Colors ────────────────────────────────────────────────────────────
+\definecolor{umnmaroon}{HTML}{7A0019}
+\definecolor{umngold}{HTML}{FFCC33}
+\definecolor{umnlightgray}{HTML}{F0F0F0}
+\definecolor{phasegreen}{HTML}{2E7D32}
+\definecolor{phaseyellow}{HTML}{F9A825}
+\definecolor{phasegray}{HTML}{BDBDBD}
+
+\setbeamercolor{frametitle}{bg=umnmaroon, fg=white}
+\setbeamercolor{title}{fg=umnmaroon}
+\setbeamercolor{subtitle}{fg=umnmaroon!70!black}
+\setbeamercolor{structure}{fg=umnmaroon}
+\setbeamercolor{alerted text}{fg=umngold!80!black}
+\setbeamercolor{progress bar}{fg=umngold, bg=umnmaroon!20}
+\setbeamercolor{block title}{bg=umnmaroon, fg=white}
+\setbeamercolor{block body}{bg=umnlightgray}
+
+% ── Fonts ─────────────────────────────────────────────────────────────────
+\usefonttheme{professionalfonts}
+\setbeamerfont{title}{size=\Large, series=\bfseries}
+\setbeamerfont{subtitle}{size=\normalsize}
+\setbeamerfont{frametitle}{size=\large, series=\bfseries}
+
+% ── Packages ──────────────────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{tabularx}
+\usepackage[export]{adjustbox}
+
+% ── Custom commands ───────────────────────────────────────────────────────
+% Phase progress bar
+\newlength{\barwidth}
+\setlength{\barwidth}{5cm}
+\newcommand{\phasebar}[3]{%
+  % Used inside tabular: #1 = phase name, #2 = fraction (0-1), #3 = label
+  \small\textbf{#1} &
+  \colorbox{phasegray!30}{\makebox[\barwidth][l]{%
+    \colorbox{phasegreen}{\makebox[\dimexpr#2\barwidth\relax][l]{\rule{0pt}{5pt}}}%
+  }} &
+  \small{#3} \\[2pt]%
+}
+
+% Compact itemize
+\setbeamertemplate{itemize items}[circle]
+\setlength{\leftmargini}{1.2em}
+\setlength{\leftmarginii}{1.0em}
+
+% Footer
+\setbeamertemplate{frame footer}{\footnotesize 2026-W07 \quad|\quad E-Scooter Speed Safety \quad|\quad Prof.\ Choi, UMN}
+
+% ── Metadata ──────────────────────────────────────────────────────────────
+\title{Weekly Progress Report}
+\subtitle{E-Scooter Speed Safety --- Feb 10--16, 2026}
+\author{Prof.\ Seongjin Choi}
+\institute{Dept.\ of Civil, Environmental, and Geo-Engineering\\University of Minnesota, Twin Cities}
+\date{Feb 10--16, 2026}
+
+% ══════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Title ─────────────────────────────────────────────────────────────────
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ── Executive Summary ─────────────────────────────────────────────────────
+\begin{frame}{Executive Summary}
+\begin{itemize}\small
+  \item Completed all Phase 1 tasks (1.2–1.7) and all Phase 2 tasks (2.1–2.5).
+  \item Completed Task 3.1 (OSM road network extraction for 50 Korean cities) and four Phase 5 modeling tasks: 5.1 (modeling dataset preparation), 5.2 (logistic regression for speeding...
+  \item Completed 7 tasks across Phases 3, 5, and 6.
+  \item Completed 8 tasks across Phases 3, 5, and 6.
+  \item Completed all remaining analysis phases (Phase 4 Spatial Analysis and Task 5.4 Beta Regression) and all remaining figures (Task 6.6).
+\end{itemize}
+\end{frame}
+
+% ── Phase Progress ────────────────────────────────────────────────────────
+\begin{frame}{Phase Progress Overview}
+\begin{tabular}{@{}l@{\hspace{8pt}}c@{\hspace{8pt}}r@{}}
+\phasebar{Phase 1: Data Preprocessing \& Quality Control}{1.00}{7/7}
+\phasebar{Phase 2: Speed Indicator Computation}{1.00}{5/5}
+\phasebar{Phase 3: Map-Matching Pipeline}{1.00}{7/7}
+\phasebar{Phase 4: Spatial Analysis}{1.00}{6/6}
+\phasebar{Phase 5: Statistical Modeling}{1.00}{8/8}
+\phasebar{Phase 6: Publication Figures}{1.00}{10/10}
+\phasebar{Phase 7: Paper Writing}{0.12}{1/8}
+\end{tabular}
+\end{frame}
+
+% ── Tasks Completed ───────────────────────────────────────────────────────
+\begin{frame}{Tasks Completed (1)}
+\begin{itemize}\small
+  \item 1.1: Profiled full dataset schema and completeness (previous session)
+  \item 1.2: Filtered GPS error trips — removed I9 model, sentinel values, invalid coordinates, few GPS points, implausible...
+  \item 1.3: Assigned cities/provinces using KD-tree nearest-neighbor with 54 city centers. Only 0.12\% unassigned.
+  \item 1.4: Computed per-city summary statistics — speed distributions, speeding rates, model/mode breakdowns by province.
+  \item 1.5: Validated speeds column against GPS displacement-derived speeds on 10K sample.
+  \item 1.6: Built final cleaned Parquet dataset (1.8 GB) with 44 columns including temporal features, quality flags, and...
+  \item 1.7: Generated comprehensive data quality report section for the paper.
+  \item 2.1: Computed trip-level indicators for all 2.78M trips: mean/max/P85/P95 speed, speed CV, speeding rate/count/duration...
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Tasks Completed (2)}
+\begin{itemize}\small
+  \item 2.2: Extracted acceleration/deceleration from consecutive speed differences.
+  \item 2.3: Computed within-trip speed profile features: ramp-up duration, cruise fraction/speed, zero-speed fraction,...
+  \item 2.4: Aggregated 382,328 user-level indicators: speeding propensity, speed consistency, harsh event propensity, temporal...
+  \item 2.5: Saved \texttt{trip\_indicators.parquet} (30 columns) and \texttt{user\_indicators.parquet} (38 columns).
+  \item 3.1: Extracted OSM road networks for all 50 cities with 5,000+ trips using osmnx.
+  \item 5.1: Prepared modeling datasets by merging trip indicators with user demographics (age from Scooter CSV).
+  \item 5.2: Fitted logistic regression (full data, n=2.32M) and GEE (n=200K subsample, exchangeable correlation).
+  \item 5.5: Fitted GMMs for K=2..8 on 198,821 users (3+ trips).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Tasks Completed (3)}
+\begin{itemize}\small
+  \item 5.8: Analyzed TUB vs ECO speed governor effect. Aggregate comparison and within-subject paired analysis (n=12,046 users...
+  \item 3.2: Evaluated LeuvenMapMatching and mappymatch (NREL) on 200 Seoul trips.
+  \item 5.6: Multinomial logistic regression predicting GMM class membership from demographics.
+  \item 5.7: Three robustness checks — threshold sensitivity (20/25/30 km/h), subsampling stability (5x 50\% subsamples), and...
+  \item 6.2: Fig 2 — Temporal distributions (4-panel: hourly volume, hourly speeding rate, daily volume, daily speeding rate)
+  \item 6.3: Fig 3 — Example within-trip speed profile (annotated Seoul TUB trip with speed limit, mean, cruise region,...
+  \item 6.4: Fig 4 — Speed distributions by mode (box plots of mean and max speed for ECO/STD/TUB)
+  \item 6.5: Fig 5 — Speeding prevalence heatmap (24h x 7 days)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Tasks Completed (4)}
+\begin{itemize}\small
+  \item 6.9: Fig 11 — Rider typology radar chart (4 GMM classes, normalized features)
+  \item 3.3: Nearest-edge road class assignment on full dataset using DuckDB \texttt{regexp\_extract\_all} + \texttt{UNNEST} for GPS coordinate...
+  \item 3.4: Extracted per-GPS-point highway tags mapped to 11 road categories.
+  \item 3.5: Validated road class assignment: fraction sums = 1.0 for all trips, zero missing values.
+  \item 3.6-3.7: Computed road-class-level speed indicators and saved to \texttt{segment\_indicators.parquet} and...
+  \item 5.3: Mixed-effects linear regression (MixedLM with REML).
+  \item 6.1: Fig 1 - Spatial distribution of trip origins (bubble map with speeding rate color coding, top 10 city labels)
+  \item 6.7: Fig 8 - Speed safety by road class (4-panel: speed box plots, speeding rate bars, mode x road class, trip counts)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Tasks Completed (5)}
+\begin{itemize}\small
+  \item 6.8: Fig 9-10 - Logistic and GEE regression OR forest plots (color-coded by significance)
+  \item 6.10: Fig 12 - TUB vs ECO mode comparison (4-panel: speed densities, within-subject scatter, effect sizes)
+  \item 4.1: H3 hexagonal grid (resolution 8, \textasciitilde{}461m edge) aggregation of trip origins/destinations.
+  \item 4.2: Getis-Ord Gi* hotspot detection (k=8 KNN, 999 permutations) for 5 cities.
+  \item 4.3: Global Moran's I for spatial autocorrelation: Seoul 0.213 (z=10.3), Daejeon 0.235 (z=8.1), Suwon 0.156 (z=5.9),...
+  \item 4.4: 4-panel spatial heatmaps for Seoul (Fig 6) and Daejeon (Fig 7): density, speeding rate, Gi* hotspots, LISA clusters.
+  \item 4.5: Infrastructure overlay - Seoul hot spots have mean speeding 30.1\%, frac\_major\_road=0.210, cycling\_infra=0.015 vs...
+  \item 4.6: Corridor-level speeding maps for Gangnam (27 hexes), Hongdae/Sinchon (11 hexes), Yeouido (6 hexes).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Tasks Completed (6)}
+\begin{itemize}\small
+  \item 5.4: Two-part (hurdle) model for segment-level speeding rate.
+  \item 6.6: Spatial hotspot maps for Seoul (Fig 6) and Daejeon (Fig 7).
+  \item 7.1: Drafted Introduction (\textasciitilde{}1800 words, 7 paragraphs).
+\end{itemize}
+\end{frame}
+
+% ── Key Findings ──────────────────────────────────────────────────────────
+\begin{frame}{Key Findings (1)}
+\begin{itemize}\small
+  \item Strong spatial autocorrelation of speeding across all cities (Moran's I 0.16-0.71, all p$<$0.001)
+  \item Daegu has the strongest clustering (I=0.712) -- likely due to city layout with distinct neighborhoods
+  \item Infrastructure overlay reveals hot spots and cold spots have similar frac\_major\_road (\textasciitilde{}0.21), but cold spots have 2x more cycling infrastructure...
+  \item Zero-inflation (70.4\%) required hurdle model instead of standard beta regression
+  \item Part 1 (whether any speeding occurs): mode is dominant predictor (TUB OR=126.6); service roads increase probability (OR=1.29); footway decreases it...
+  \item Part 2 (speeding intensity given speeding occurs): TUB increases intensity (beta=1.10 on logit scale); cycling infrastructure paradoxically increases...
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Key Findings (2)}
+\begin{itemize}\small
+  \item frac\_major\_road is protective in both parts (OR=0.62 for occurrence; beta=-0.26 for intensity) -- congestion effect
+  \item Dominant road class distribution: residential (41.0\%), tertiary (14.9\%), service (14.8\%), footway (14.5\%), secondary (7.2\%), primary (4.4\%), cycleway...
+  \item Mean fraction on major roads: 13.6\%
+  \item 2 cities without OSM networks skipped: "Other" (3,370) and "Tongyeong" (2,350) = 5,720 trips (0.2\%)
+  \item TUB mode on trunk: 63.3\% speeding; on tertiary: 59.7\%
+  \item ICC (user random intercept) = 0.271 -- 27\% of speed variance is between-user
+\end{itemize}
+\end{frame}
+
+% ── New Figures ───────────────────────────────────────────────────────────
+\begin{frame}{New Figures (1)}
+    \begin{columns}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig10_gee_OR.png}
+        \\\tiny fig10\_gee\_OR
+      \end{column}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig11_rider_typology_radar.png}
+        \\\tiny fig11\_rider\_typology\_radar
+      \end{column}
+    \end{columns}
+  \vspace{4pt}
+    \begin{columns}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig12_tub_vs_eco.png}
+        \\\tiny fig12\_tub\_vs\_eco
+      \end{column}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig1_spatial_distribution.png}
+        \\\tiny fig1\_spatial\_distribution
+      \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{New Figures (2)}
+    \begin{columns}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig2_temporal_distributions.png}
+        \\\tiny fig2\_temporal\_distributions
+      \end{column}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig3_speed_profile_example.png}
+        \\\tiny fig3\_speed\_profile\_example
+      \end{column}
+    \end{columns}
+  \vspace{4pt}
+    \begin{columns}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig4_speed_by_mode.png}
+        \\\tiny fig4\_speed\_by\_mode
+      \end{column}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig5_speeding_heatmap.png}
+        \\\tiny fig5\_speeding\_heatmap
+      \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{New Figures (3)}
+    \begin{columns}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig6_seoul_hotspot.png}
+        \\\tiny fig6\_seoul\_hotspot
+      \end{column}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig7_daejeon_hotspot.png}
+        \\\tiny fig7\_daejeon\_hotspot
+      \end{column}
+    \end{columns}
+  \vspace{4pt}
+    \begin{columns}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig8_speed_by_road_class.png}
+        \\\tiny fig8\_speed\_by\_road\_class
+      \end{column}
+      \begin{column}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.3\textheight,keepaspectratio]{figures/fig9_logistic_OR.png}
+        \\\tiny fig9\_logistic\_OR
+      \end{column}
+    \end{columns}
+\end{frame}
+
+% ── Issues & Blockers ─────────────────────────────────────────────────────
+\begin{frame}{Issues \& Resolutions}
+\begin{itemize}\small
+  \item \textbf{Harsh event threshold}: The configured 2 m/s² threshold is unreachable at 10s sampling intervals.
+  \item \textbf{City assignment uses KD-tree, not polygon boundaries}: Province-level analysis is robust; city-level may have edge-case misassignments.
+  \item \textbf{Ulsan anomaly}: All 82K trips use S7 model with "none" mode — may need special handling in modeling phase.
+  \item \textbf{Speed interval assumption}: Assumed 10s between speed readings for duration/acceleration calculations.
+  \item \textbf{OSM maxspeed coverage}: Very low in Korea (1-12\%).
+  \item \textbf{Full GLMM infeasible}: statsmodels BinomialBayesMixedGLM too slow for 2.3M obs / 329K groups.
+  \item \textbf{GMM K selection}: BIC does not plateau with N=198K.
+  \item \textbf{ECO mode OR $>$ 1}: ECO has slightly higher speeding odds than STD (OR=1.17), which is counterintuitive.
+\end{itemize}
+\end{frame}
+
+% ── Next Week Plan ────────────────────────────────────────────────────────
+\begin{frame}{Next Week Plan}
+\begin{enumerate}
+  \item \textbf{Task 7.2}: Draft Literature Review (3-4 pages)
+  \item \textbf{Task 7.3}: Draft Data Description section with Tables 1-2
+  \item \textbf{Task 7.4}: Draft Methodology section with Tables 3-5
+  \item Continue through Phase 7 paper writing tasks
+\end{enumerate}
+\end{frame}
+
+\end{document}
