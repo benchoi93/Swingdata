@@ -1,3 +1,22 @@
+# Project-specific ignores
+data_parquet/
+cache/
+.claude/
+*.b64
+nul
+paper_compiled.pdf
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.out
+*.abs
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+src/paper/main.pdf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
