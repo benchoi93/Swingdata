@@ -1,0 +1,10 @@
+\beamer@sectionintoc {1}{Project Motivation}{3}{0}{1}
+\beamer@sectionintoc {2}{Phase 1: Data Preprocessing}{6}{0}{2}
+\beamer@sectionintoc {3}{Phase 2: Speed Indicators}{8}{0}{3}
+\beamer@sectionintoc {4}{Phase 3: Road Network Assignment}{10}{0}{4}
+\beamer@sectionintoc {5}{Phase 4: Spatial Analysis}{12}{0}{5}
+\beamer@sectionintoc {6}{Phase 5: Statistical Modeling}{14}{0}{6}
+\beamer@sectionintoc {7}{Phase 8: Extension Analyses}{19}{0}{7}
+\beamer@sectionintoc {8}{Phase 11: DiD Causal Analysis}{23}{0}{8}
+\beamer@sectionintoc {9}{Phase 12: Survival Analysis}{27}{0}{9}
+\beamer@sectionintoc {10}{Paper Status \& Next Steps}{29}{0}{10}
