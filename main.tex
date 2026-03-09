@@ -1,14 +1,68 @@
-\documentclass{article}
-\usepackage{graphicx} % Required for inserting images
+\documentclass[review]{elsarticle}
 
-\title{AAP_SwingData}
-\author{Seongjin Choi}
-\date{March 2026}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\graphicspath{{../../}}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{lineno}
+\usepackage{array}
+
+\linenumbers
+
+\journal{Transportation Research Part C: Emerging Technologies}
 
 \begin{document}
 
-\maketitle
+\begin{frontmatter}
 
-\section{Introduction}
+\title{Characterizing E-Scooter Riding Safety Through City-Scale Speed Profile Analysis}
+
+\author[umn]{Seongjin Choi\corref{cor1}}
+\ead{choi@umn.edu}
+\cortext[cor1]{Corresponding author}
+
+\address[umn]{Department of Civil, Environmental, and Geo-Engineering, University of Minnesota, Twin Cities, Minneapolis, MN 55455, USA}
+
+\begin{abstract}
+We present the first large-scale characterization of e-scooter speed behavior using 2.78 million GPS trajectories with per-point speed profiles from Swing, a major Korean operator, covering 52 cities and 382,328 users (May 2023), supplemented by 44.1 million trips over 24 months for longitudinal analysis. We find that 29.6\% of trips exceed the 25~km/h regulatory limit, but speeding is concentrated: 60.9\% of users never speed while 17.3\% speed on over half their trips. Spatial statistics (Getis-Ord $G_i^*$, Moran's $I$) identify significant speeding hotspots across five cities ($I = 0.16$--$0.71$, all $p < 0.001$). We estimate logistic regression with GEE, mixed-effects models, a two-part hurdle model, and a gradient-boosted tree with SHAP interpretability (AUC = 0.905) to disentangle rider demographics, operating mode, temporal context, and road infrastructure effects. The turbo (TUB) mode---which removes the software speed governor---dominates all models, increasing speeding odds 121-fold ($p < 0.001$) and SHAP importance (3.6$\times$ the next feature). A within-subject natural experiment ($n = 12{,}046$) confirms the governor reduces mean speed by 24\%, maximum speed by 31\%, and speeding from 7.4\% to 0.38\% (Cohen's $d = 1.0$--$2.2$). Longitudinal GEE analysis reveals monotonically increasing speeding with experience (3.8\% first trip to 28.0\% after 500+ trips; OR = 1.18 per doubling), driven by progressive TUB mode adoption rather than within-mode changes. A curvature analysis reveals a risk paradox: curvy roads have lower speeding prevalence but 5$\times$ higher risk scores when speeding occurs. Our findings support mandatory speed governors, targeted geofencing, and graduated mode access for new riders.
+\end{abstract}
+
+\begin{keyword}
+e-scooter safety \sep speed behavior \sep GPS trajectory analysis \sep speed governor \sep spatial hotspot analysis \sep SHAP interpretability \sep micromobility regulation
+\end{keyword}
+
+\begin{highlights}
+\item Analysis of 2.78M e-scooter trips with speed profiles across 52 Korean cities
+\item Speed governor removal increases speeding odds 121-fold (OR = 121)
+\item Rider experience increases speeding via progressive TUB mode adoption
+\item SHAP analysis (AUC=0.905) validates TUB mode as dominant predictor
+\item Curvy roads: lower speeding prevalence but 5x higher risk scores
+\end{highlights}
+
+\end{frontmatter}
+
+\input{introduction}
+\input{literature_review}
+\input{data_description}
+\input{methodology}
+\input{results}
+\input{discussion}
+\input{conclusions}
+
+\input{appendix}
+
+\section*{Acknowledgments}
+The authors thank Swing for providing the trip-level and trajectory datasets used in this study. All data were anonymized and used in accordance with the data sharing agreement. [Additional acknowledgments to be added.]
+
+\section*{Author Contributions}
+\textbf{Seongjin Choi}: Conceptualization, Methodology, Formal analysis, Software, Writing -- Original Draft, Writing -- Review \& Editing, Supervision. [Additional authors and contributions to be added.]
+
+\section*{Data Availability}
+The data used in this study were provided by Swing under a data sharing agreement and cannot be publicly shared due to privacy restrictions. The analysis code is available from the corresponding author upon reasonable request.
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{references}
 
 \end{document}

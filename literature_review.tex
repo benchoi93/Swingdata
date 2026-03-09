@@ -1,0 +1,58 @@
+\section{Literature Review}
+\label{sec:literature}
+
+We organize our review of the relevant literature into four thematic areas: epidemiological and behavioral evidence on e-scooter safety (Section~\ref{sec:lit_epi}), speed as a safety indicator for micromobility (Section~\ref{sec:lit_speed}), large-scale GPS trajectory analysis for transportation safety (Section~\ref{sec:lit_gps}), and the specific gaps that motivate our study (Section~\ref{sec:lit_gaps}).
+
+\subsection{E-Scooter Safety: Epidemiological and Behavioral Evidence}
+\label{sec:lit_epi}
+
+The rapid adoption of shared e-scooters has generated substantial epidemiological research on injury patterns. Hospital-based studies established that e-scooter injuries predominantly involve upper-extremity fractures and head trauma, with head injuries accounting for approximately 22\% of presentations \citep{trivedi2019injuries, badeau2019emergency, bloom2021standing}. Systematic reviews confirm these patterns: \citet{singh2022impact} found bony injuries as the most common type (39.2\%), while \citet{spota2024injury} identified two prevalent injury profiles---mild upper-limb injuries and severe head trauma. The economic burden is considerable, with \citet{kahan2024escooter} reporting annual e-scooter hospital charges of USD~10.4~million in Denver alone.
+
+However, epidemiological studies characterize injury outcomes without observing the riding behavior that produced them, making it difficult to identify behavioral precursors of injuries---particularly the role of speed. Survey-based studies capture self-reported attitudes \citep{haworth2021comparing} but cannot measure actual behavior. Naturalistic studies using instrumented scooters provide objective speed data \citep{ma2021escooter} but are limited to small samples (typically $< 500$ trips from a single city), precluding analysis of spatial variation across cities and infrastructure contexts.
+
+\subsection{Speed as a Safety Indicator for Micromobility}
+\label{sec:lit_speed}
+
+The power model of the speed-crash relationship \citep{elvik2013reexamination} predicts that even modest speed increases lead to disproportionate injury risk---a relationship especially consequential for unprotected e-scooter riders \citep{yang2020safety}. Jurisdictions worldwide have responded with regulatory speed limits: 25~km/h in South Korea \citep{koreaherald2020escooter} and France, 20~km/h in Germany, and 15--25~km/h across U.S. cities \citep{ma2021municipal, sexton2023shared}.
+
+Despite these regulations, empirical evidence on actual compliance remains scarce. \citet{cicchino2023speed} measured 2,004 riders' speeds via roadside observation in two U.S. cities, finding that speed governor settings meaningfully affect behavior, but captured only spot speeds rather than continuous profiles. Beyond compliance, speed variability is an independent risk indicator: \citet{twisk2021speed} found that speed-pedelec riders exhibited greater speed variation than conventional cyclists, while \citet{vetturi2023kinematic} highlighted vehicle-specific braking differences for micromobility users.%
+% NOTE: Specific deceleration rates removed pending PI verification of Vetturi et al. (2023).
+These findings suggest that comprehensive safety assessment requires continuous within-trip speed profiles rather than spot-speed measurements.
+
+Technology-based speed management, including geofencing \citep{lime2023geofencing, caggiani2023geofencing} and operator-level speed governors, has received growing attention, but empirical evaluations using large-scale behavioral data remain limited \citep{neshagaran2024safety}. Our dataset uniquely enables within-subject comparisons across operating modes (TUB, STD, ECO) that impose different speed limits on identical hardware.
+
+\subsection{Large-Scale GPS Trajectory Analysis for Transportation Safety}
+\label{sec:lit_gps}
+
+GPS trajectory analysis for transportation safety is well established in the taxi and bicycle domains. \citet{liu2020taxi} modeled spatial patterns of taxi speeding events, while \citet{strauss2017cycling} characterized cycling speed behavior by road type using 10,000+ GPS trips---establishing the analytical template of trajectory-level speed extraction, spatial aggregation, and regression modeling that we extend to e-scooters. For e-scooters, the GPS trajectory literature has focused on spatial usage patterns---trip origins, destinations, and trip generation determinants \citep{mckenzie2019spatiotemporal, jiao2020shared, bai2020dockless}---rather than speed behavior, reflecting a data limitation: most operator datasets lack per-point speed readings. Recent studies have begun to address this gap: \citet{james2019pedestrians} analyzed pedestrian-e-scooter conflicts in sidewalk environments, and \citet{tuncer2020notes} documented riding practices through ethnographic observation, but neither leveraged continuous GPS speed data at scale.
+
+A parallel challenge is understanding how rider heterogeneity shapes speed behavior. In the broader micromobility literature, Gaussian mixture models \citep{quddus2013speed} and latent class approaches \citep{jena2025latent} have been used to segment users by behavioral patterns, but applications to e-scooter speed profiles---as opposed to survey responses or trip frequency---remain absent.
+
+Linking trajectories to road infrastructure requires map-matching. HMM-based methods \citep{newson2009hidden} provide topological consistency but are computationally expensive at scale; we employ a nearest-edge approach using spatial indexing (KD-trees) to assign road classes across 100~million GPS points. Spatial statistical methods---Getis-Ord $G_i^*$ \citep{getis1992analysis} and Moran's $I$ \citep{moran1950notes}---have been applied to crash hotspot detection \citep{chen2015bicycle, shah2021crash} but not to continuous speed behavior outcomes from micromobility data.
+
+\subsection{Research Gaps and Contributions}
+\label{sec:lit_gaps}
+
+Our review reveals five interconnected gaps. First, no prior study has analyzed e-scooter speed at a commensurate scale---existing work relies on spot-speed observations ($n < 2{,}000$) or small naturalistic samples ($n < 500$ trips). Second, within-trip speed profiles have not been exploited for safety assessment; prior GPS studies focus on spatial usage patterns, not speed dynamics along rides. Third, the link between road infrastructure and e-scooter speed behavior has not been quantified at scale. Fourth, speed governor effectiveness has not been evaluated with within-subject controls---\citet{cicchino2023speed} compared cities with different limiter settings, but between-city designs conflate governor effects with infrastructure and demographic differences. Fifth, data-driven rider typologies based on objective speed indicators (rather than surveys) have not been developed \citep{degele2018identifying, jena2025latent}. This paper addresses all five gaps in a unified framework. Table~\ref{tab:lit_comparison} positions our study relative to prior work.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparison of this study with closely related prior work on e-scooter speed behavior.}
+\label{tab:lit_comparison}
+\small
+\begin{tabular}{lllllll}
+\toprule
+\textbf{Study} & \textbf{Sample size} & \textbf{Speed data} & \textbf{Cities} & \textbf{Infra.\ link} & \textbf{Rider types} & \textbf{Governor} \\
+\midrule
+\citet{cicchino2023speed} & 2,004 obs. & Spot speed & 2 & No & No & Between-city \\
+\citet{ma2021escooter} & $<$500 trips & Sensor profile & 1 & No & No & No \\
+\citet{jiao2020shared} & 900K trips & None (spatial) & 1 & Partial & No & No \\
+\citet{mckenzie2019spatiotemporal} & 137K trips & None (spatial) & 1 & No & No & No \\
+\citet{bai2020dockless} & 192K trips & None (spatial) & 2 & Partial & No & No \\
+\citet{degele2018identifying} & Survey & None (survey) & 1 & No & Survey-based & No \\
+\citet{jena2025latent} & Survey & None (survey) & Multi & No & Survey-based & No \\
+\addlinespace
+\textbf{This study} & \textbf{2.78M trips} & \textbf{Sensor profile} & \textbf{52} & \textbf{Yes (OSM)} & \textbf{Behavioral} & \textbf{Within-subject} \\
+\bottomrule
+\end{tabular}
+\end{table}
