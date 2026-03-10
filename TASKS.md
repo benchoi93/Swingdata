@@ -13,19 +13,13 @@
 
 Build unified Feb-Nov 2023 dataset with all 8 genuinely behavioral outcomes.
 
-- [ ] 0.1 Filter `routes_all.parquet` to Feb-Nov 2023 with `has_speed_data=True`. Output: `data_parquet/v2/trips_feb_nov.parquet`. Record row count (expect ~21M).
-- [ ] 0.2 Compute trip-level indicators for 8 primary outcomes + manipulation check:
-  - **Safety**: harsh_accel_count, harsh_decel_count, speed_cv
-  - **Demand**: distance, duration (trip frequency computed at user-month level)
-  - **Dynamics**: cruise_fraction, zero_speed_fraction
-  - **Manipulation check**: mean_speed, max_speed, p85_speed
-  - Also: binary speeding (>25 km/h), speeding_rate (for legacy/survival)
-  Output: `data_parquet/v2/trip_indicators.parquet`.
-- [ ] 0.3 Re-run road class assignment (DuckDB regex + KDTree) on Feb-Nov trips. Output: `data_parquet/v2/trip_road_classes.parquet`.
-- [ ] 0.4 Merge trip indicators + road class + city assignment + user demographics (age from Scooter CSV). Create unified modeling dataset. Output: `data_parquet/v2/trip_modeling.parquet`.
-- [ ] 0.5 Compute user-level aggregates: all 8 outcomes + trip frequency per month + active months. Output: `data_parquet/v2/user_modeling.parquet`.
-- [ ] 0.6 Compute descriptive statistics for Table 1: outcomes organized by safety x demand x dynamics, by mode (TUB/STD/ECO). Save to `data_parquet/v2/descriptive_stats.json`.
-- [ ] 0.7 Verify data quality. Write report to `reports/v2/data_verification.json`.
+- [x] 0.1 Filter `routes_all.parquet` to Feb-Nov 2023 with `has_speed_data=True`. Output: `data_parquet/v2/trips_feb_nov.parquet`. 23,728,759 rows (all modes incl. BIKE).
+- [x] 0.2 Compute trip-level indicators for 8 primary outcomes + manipulation check. Output: `data_parquet/v2/trip_indicators_v2.parquet`. 23,718,206 rows. Script: `src/v2/prepare_data.py`.
+- [x] 0.3 Road class assignment (start-point KDTree). Output: `data_parquet/v2/trip_road_classes_v2.parquet`. 50 city networks, 3.57M edges. Script: `src/v2/assign_road_class_v2.py`.
+- [x] 0.4 Merge indicators + road class + city + age -> unified modeling dataset. Output: `data_parquet/v2/trip_modeling.parquet`. 19,454,309 scooter trips (TUB/STD/ECO only), 1,001,459 users, 52 cities. Script: `src/v2/build_modeling_dataset.py`.
+- [x] 0.5 User-level aggregates. Output: `data_parquet/v2/user_modeling.parquet`. 1,001,459 users, avg 19.4 trips, 3.2 active months. Script: `src/v2/build_user_dataset.py`.
+- [x] 0.6 Descriptive statistics for Table 1. Output: `data_parquet/v2/descriptive_stats.json`. Script: `src/v2/descriptive_stats.py`.
+- [x] 0.7 Data quality verification. 3 minor warnings (extreme outliers). Output: `reports/v2/data_verification.json`. Script: `src/v2/verify_data.py`.
 
 ## Phase 1: Block 1 — Cross-Sectional Behavioral Profiles (Priority: HIGH)
 
