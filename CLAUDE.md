@@ -1,36 +1,38 @@
-# CLAUDE.md — Swingdata (E-Scooter Speed Governor Paper)
+# CLAUDE.md — Swingdata (E-Scooter Speed Governance Paper)
 
 ## Project Overview
 
-Research project analyzing e-scooter GPS trajectories from Swing (Korean operator) to evaluate whether software speed governors reduce speeding. Target venue: **Accident Analysis & Prevention (AAP)**.
+Research project analyzing e-scooter GPS trajectories from Swing (Korean operator) to study **behavioral responses to speed governance** across multiple safety dimensions. Target venue: **Analytic Methods in Accident Research (AMAR)**.
 
-**Paper title:** "Do Speed Governors Work? Evidence from 21 Million E-Scooter Trips and a Natural Experiment in South Korea"
+**Paper title (working):** Selected after results — candidates in NEWPLAN.md
 
-**Core thesis:** Software speed governors are the most effective intervention for e-scooter speed safety, demonstrated through converging cross-sectional, causal, and survival evidence.
+**Core insight:** Speed governors don't just cap top speed — they reshape the entire riding behavioral profile. The paper analyzes 6 behavioral dimensions (speed level, speed variability, harsh events, cruising behavior, trip characteristics, distributional shape) across cross-sectional, causal, and survival frameworks.
 
 **Full plan:** See `NEWPLAN.md` for paper design. See `TASKS.md` for task list.
 
 ## Directory Structure
 
 - `src/` — Legacy analysis scripts (May 2023 single-month, Phases 1-12)
-- `src/v2/` — **NEW: Scripts for AAP paper** (Feb-Nov 2023 full dataset)
+- `src/v2/` — **NEW: Scripts for AMAR paper** (Feb-Nov 2023 full dataset)
 - `src/paper/` — Paper LaTeX files (synced with Overleaf via git subtree)
 - `data_parquet/` — Legacy processed data
 - `data_parquet/v2/` — **NEW: Feb-Nov 2023 unified dataset**
-- `figures/v2/` — **NEW: Figures for AAP paper**
+- `figures/v2/` — **NEW: Figures for AMAR paper**
 - `figures/` — Legacy figures (v1 paper)
 - `reports/` — Analysis reports
 - `archive/paper_v1_trc/` — Archived TR-C paper (v1)
 - `NEWPLAN.md` — Paper design document
-- `TASKS.md` — Master task list for AAP paper
+- `TASKS.md` — Master task list for AMAR paper
 
 ## Data Plan
 
-**Cross-sectional analyses:** Use `data_parquet/v2/trip_modeling.parquet` (Feb-Nov 2023, ~21M trips with speed data). ALL cross-sectional analyses must use this same dataset.
+**Cross-sectional analyses:** Use `data_parquet/v2/trip_modeling.parquet` (Feb-Nov 2023, ~21M trips with speed data). ALL cross-sectional analyses must use this same dataset. Must include all 6 behavioral dimensions.
 
-**Causal analyses (DiD):** Use `data_parquet/v2/city_month_panel.parquet` (Feb-Dec 2023, includes Dec for post-treatment).
+**Causal analyses (DiD):** Use `data_parquet/v2/city_month_panel.parquet` (Feb-Dec 2023, includes Dec for post-treatment). Multi-outcome TWFE on all 6 dimensions.
 
-**Survival analysis:** Use Feb-Nov 2023 user-trip sequences (pre-ban only).
+**Compensation test:** User-level mode-switcher analysis on all 6 dimensions, Nov-Dec 2023.
+
+**Survival analysis:** Feb-Nov 2023 user-trip sequences. Multiple event types: first speeding, first harsh event, first high-CV trip.
 
 **Raw data location:** `D:/SwingData/raw/` (24 monthly CSVs, 2022-01 to 2023-12)
 
@@ -41,11 +43,23 @@ routes_all.parquet (44.1M trips, all months)
   |-- filter to Feb-Nov 2023, has_speed_data=True
   v
 trips_feb_nov.parquet (~21M trips)
-  |-- compute indicators, assign road class, merge demographics
+  |-- compute ALL 6 behavioral dimensions, assign road class, merge demographics
   v
-trip_modeling.parquet (unified modeling dataset)
-  |-- used by ALL cross-sectional analyses
+trip_modeling.parquet (unified modeling dataset with 6 dimensions)
+  |-- used by ALL cross-sectional analyses (Block 1, Block 4)
+  |-- aggregated to city-month panel for DiD (Block 2, Block 3)
 ```
+
+## 6 Behavioral Dimensions
+
+| Dimension | Trip-level metrics | Column names |
+|-----------|-------------------|--------------|
+| Speed level | Mean speed, P85, max speed | mean_speed, p85_speed, max_speed |
+| Speed variability | Speed CV, speed std | speed_cv, speed_std |
+| Harsh events | Harsh accel count, harsh decel count | harsh_accel_count, harsh_decel_count |
+| Cruising behavior | Cruise fraction, zero-speed fraction | cruise_fraction, zero_speed_fraction |
+| Trip characteristics | Distance, duration | distance, duration |
+| Distributional shape | Skewness, kurtosis of within-trip speeds | speed_skewness, speed_kurtosis |
 
 ## Key Conventions
 
@@ -64,20 +78,18 @@ trip_modeling.parquet (unified modeling dataset)
 - Overleaf remote: `overleaf` -> `https://git@git.overleaf.com/69af522801dd1b8a205557ae`
 - Push to Overleaf: `git subtree push --prefix=src/paper overleaf master`
 - Pull from Overleaf: `git subtree pull --prefix=src/paper overleaf master --squash`
+- **ALWAYS commit before pushing to Overleaf** (subtree push only sends committed content)
 
 ## Relevant Skills
 
-### `/figure-maker` — Phase 1, 3 (Figures)
-All 10+ figures for AAP paper. Violin plots, OR forests, SHAP bars, DiD trends, KM curves. Output to `figures/v2/`.
+### `/figure-maker` — Figures
+All 12+ figures for AMAR paper. Multi-dimensional profiles, multi-outcome DiD, quantile shifts. Output to `figures/v2/`.
 
-### `/paper-writer` — Phase 4 (Paper Writing)
-All paper sections. Follow AAP style: safety-focused, policy-forward, active voice. Target ~7,000 words.
+### `/paper-writer` — Paper Writing
+All paper sections. AMAR style: methods-forward, econometric rigor, safety application. Target ~8,000-10,000 words.
 
-### `/experiment-code` — Phase 0-3 (Analysis)
-Data preparation, cross-sectional models, DiD, survival. All code in `src/v2/`.
-
-### `/abstract-writer` — Abstract
-Target 250 words for AAP.
+### `/experiment-code` — Analysis
+Data preparation, multi-outcome models, DiD, survival. All code in `src/v2/`.
 
 ### `/commit` — Version Control
 Commit completed work with descriptive messages.
@@ -102,3 +114,4 @@ Commit completed work with descriptive messages.
 - DiD treatment variable: use Nov 2023 TUB share (not all-month mean)
 - lifelines CoxTimeVaryingFitter: needs minimal covariates to avoid singular matrix
 - city_summary_stats.parquet is at PROVINCE level; use CITY_CENTERS dict + KDTree for city assignment
+- scipy.stats.skew/kurtosis for within-trip speed distributional shape metrics

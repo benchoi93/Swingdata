@@ -1,81 +1,98 @@
-# Task List: Speed Governor E-Scooter Paper (AAP)
+# Task List: E-Scooter Speed Governance Paper (AMAR)
 
 **Status legend:** `[ ]` pending, `[~]` in progress, `[x]` done, `[!]` blocked
 
-**Paper:** "Do Speed Governors Work? Evidence from 21M E-Scooter Trips and a Natural Experiment"
-**Target:** Accident Analysis & Prevention (AAP)
+**Paper:** Behavioral Responses to E-Scooter Speed Governance (title TBD after results)
+**Target:** Analytic Methods in Accident Research (AMAR)
 **Plan:** See `NEWPLAN.md` for full paper design
+**Design doc:** `docs/superpowers/specs/2026-03-09-amar-paper-design.md`
 
 ---
 
 ## Phase 0: Data Preparation (Priority: CRITICAL)
 
-Build unified Feb-Nov 2023 dataset for all cross-sectional analyses.
+Build unified Feb-Nov 2023 dataset with all 8 genuinely behavioral outcomes.
 
 - [ ] 0.1 Filter `routes_all.parquet` to Feb-Nov 2023 with `has_speed_data=True`. Output: `data_parquet/v2/trips_feb_nov.parquet`. Record row count (expect ~21M).
-- [ ] 0.2 Re-compute trip-level speed indicators on full Feb-Nov dataset: mean_speed, max_speed, p85_speed, speed_cv, speeding_rate, speeding_duration, harsh_accel_count, cruise_fraction, zero_speed_fraction. Output: `data_parquet/v2/trip_indicators.parquet`.
+- [ ] 0.2 Compute trip-level indicators for 8 primary outcomes + manipulation check:
+  - **Safety**: harsh_accel_count, harsh_decel_count, speed_cv
+  - **Demand**: distance, duration (trip frequency computed at user-month level)
+  - **Dynamics**: cruise_fraction, zero_speed_fraction
+  - **Manipulation check**: mean_speed, max_speed, p85_speed
+  - Also: binary speeding (>25 km/h), speeding_rate (for legacy/survival)
+  Output: `data_parquet/v2/trip_indicators.parquet`.
 - [ ] 0.3 Re-run road class assignment (DuckDB regex + KDTree) on Feb-Nov trips. Output: `data_parquet/v2/trip_road_classes.parquet`.
 - [ ] 0.4 Merge trip indicators + road class + city assignment + user demographics (age from Scooter CSV). Create unified modeling dataset. Output: `data_parquet/v2/trip_modeling.parquet`.
-- [ ] 0.5 Compute user-level aggregates from Feb-Nov data: speeding propensity, mode usage, trip count, experience measures. Output: `data_parquet/v2/user_modeling.parquet`.
-- [ ] 0.6 Compute descriptive statistics for Table 1: by mode (TUB/STD/ECO), overall. Save to `data_parquet/v2/descriptive_stats.json`.
-- [ ] 0.7 Verify data quality: check for nulls, sentinel values, GPS bounds, speed ranges. Write verification report to `reports/v2/data_verification.json`.
+- [ ] 0.5 Compute user-level aggregates: all 8 outcomes + trip frequency per month + active months. Output: `data_parquet/v2/user_modeling.parquet`.
+- [ ] 0.6 Compute descriptive statistics for Table 1: outcomes organized by safety x demand x dynamics, by mode (TUB/STD/ECO). Save to `data_parquet/v2/descriptive_stats.json`.
+- [ ] 0.7 Verify data quality. Write report to `reports/v2/data_verification.json`.
 
-## Phase 1: Cross-Sectional Analysis (Priority: HIGH)
+## Phase 1: Block 1 — Cross-Sectional Behavioral Profiles (Priority: HIGH)
 
 All analyses use `data_parquet/v2/trip_modeling.parquet` (Feb-Nov 2023).
 
-- [ ] 1.1 Logistic GEE: speeding ~ mode + age_group + time_of_day + day_type + city + frac_major_road + log(distance), clustered by user_id. Report OR, 95% CI, p-values. Save results JSON + OR forest plot (Fig 4).
-- [ ] 1.2 LightGBM + SHAP: Train on stratified 2M subsample. Compute SHAP values. Save SHAP bar plot (Fig 5) and summary plot. Report AUC, top-10 features.
-- [ ] 1.3 Experience GEE: speeding ~ log(trip_rank) + mode + age_group + controls, clustered by user. Test within-mode experience effect. Compute TUB adoption curve. Save experience + adoption overlay figure (Fig 6).
-- [ ] 1.4 Descriptive figures: (a) spatial distribution map (Fig 1), (b) speed by mode violin (Fig 2), (c) temporal heatmap (Fig 3). All from full Feb-Nov data.
-- [ ] 1.5 Spatial analysis: H3 hex aggregation + Getis-Ord Gi* for top 5 cities. Brief summary for paper (not main focus). Save stats for text.
+- [ ] 1.1 Multi-dimensional mode comparison: TUB vs STD vs ECO on all 8 primary outcomes. Table + visualization. Save radar/parallel coordinates figure (Fig 1).
+- [ ] 1.2 GEE for EACH primary outcome: harsh_accel_count, harsh_decel_count, speed_cv, distance, cruise_fraction, zero_speed_fraction ~ mode + age_group + time_of_day + day_type + city + frac_major_road + log(distance), clustered by user. Also run manipulation check (mean_speed). Report coefficients. Save multi-panel forest plot (Fig 2).
+- [ ] 1.3 Within-subject paired comparison (users who used multiple modes): paired tests on all 8 outcomes. Report Cohen's d for each.
+- [ ] 1.4 LightGBM + SHAP: separate models for safety outcomes (harsh events, speed_cv), demand (distance), dynamics (cruise_fraction). Compare feature importance rankings across categories. Save SHAP comparison figure (Fig 3).
+- [ ] 1.5 Distribution figures: violin/box by mode for each outcome category (Fig supplementary).
 
-## Phase 2: Causal Analysis (Priority: HIGH)
+## Phase 2: Block 2 — Causal Multi-Outcome DiD (Priority: HIGH)
 
 Uses Dec 2023 TUB ban as natural experiment.
 
-- [ ] 2.1 Rebuild city-month panel from `routes_all.parquet` for Feb-Dec 2023. Ensure consistent city assignment. Output: `data_parquet/v2/city_month_panel.parquet`.
-- [ ] 2.2 TWFE DiD: speeding_rate ~ post * tub_share_nov + city_FE + month_FE. Report beta, SE, p-value. Save DiD mode trends figure (Fig 7).
-- [ ] 2.3 Event study: monthly coefficients relative to Nov 2023. Check pre-trends. Save event study figure (Appendix).
-- [ ] 2.4 Dose-response: scatter of TUB share reduction vs speeding reduction across cities. Report r, slope, bootstrap CI. Save dose-response figure (Fig 8).
-- [ ] 2.5 Placebo test: use Sep 2023 as fake treatment date. Report beta and p-value.
-- [ ] 2.6 Behavioral substitution: multi-outcome DiD on 5 outcomes (overall speeding, trip distance, STD/ECO speeding, STD/ECO mean speed, STD/ECO max speed). Report all betas.
-- [ ] 2.7 Mode-switcher analysis: identify TUB->STD/ECO switchers vs never-TUB users. Within-user DiD on STD/ECO speed. Report Cohen's d. Save mode-switcher figure (Fig 9).
-- [ ] 2.8 Mode-switcher placebo: repeat with Oct 2023 as placebo. Confirm null result.
+- [ ] 2.1 Rebuild city-month panel with all 8 primary outcomes aggregated at city-month level + trip count + active user count. Output: `data_parquet/v2/city_month_panel_v2.parquet`.
+- [ ] 2.2 TWFE DiD on EACH outcome: Y_ct ~ post * tub_share_nov + city_FE + month_FE. Include trip count and active user count as demand outcomes. Report all betas, SEs, p-values. Apply Bonferroni correction. Save multi-outcome DiD coefficient figure (Fig 4 — KEY FIGURE).
+- [ ] 2.3 Event study for each outcome (monthly coefficients). Save multi-panel event study (Appendix).
+- [ ] 2.4 Demand response figure: trip counts + active users before/after ban, by treatment intensity (Fig 5).
+- [ ] 2.5 Dose-response for each outcome. Save multi-panel dose-response (Fig 9).
+- [ ] 2.6 Placebo test (Sep 2023) for each outcome. Report all betas and p-values.
 
-## Phase 3: Survival Analysis (Priority: MEDIUM)
+## Phase 3: Block 3 — Compensation Test (Priority: HIGH)
 
-Uses Feb-Nov 2023 user-trip sequences.
+- [ ] 3.1 Multi-outcome DiD restricted to STD/ECO trips only, on all 8 outcomes.
+- [ ] 3.2 Mode-switcher within-user DiD on ALL 8 outcomes. 120K switchers vs 120K never-TUB.
+- [ ] 3.3 Cohen's d effect sizes across all outcomes. Save compensation summary figure (Fig 6).
+- [ ] 3.4 Mode-switcher placebo (Oct 2023) on all outcomes.
+- [ ] 3.5 Summary table: which margins show compensation and which don't.
 
-- [ ] 3.1 Rebuild survival dataset from v2 trip data. Users with >=2 trips, Feb-Nov 2023. Record event/censored counts.
-- [ ] 3.2 Kaplan-Meier: stratified by TUB-ever vs never-TUB. Log-rank test. Save KM figure (Fig 10).
-- [ ] 3.3 Cox PH static: HR for ever_tub, tub_fraction, age, log_n_trips. Report C-index.
-- [ ] 3.4 Cox time-varying: TUB adoption as time-varying covariate. Report HR for TUB adoption.
-- [ ] 3.5 TUB mediation: compute % of experience-speeding gradient mediated by TUB adoption.
+## Phase 4: Block 4 — Behavioral Escalation Pathway (Priority: HIGH)
 
-## Phase 4: Paper Writing (Priority: HIGH — after Phases 0-3)
+- [ ] 4.1 Experience -> mode adoption -> outcome changes: mediation analysis for each primary outcome. How much of the experience effect on each outcome is mediated by TUB adoption?
+- [ ] 4.2 Experience trajectory visualization: multi-dimensional experience curves by outcome category (Fig 7).
+- [ ] 4.3 Survival: time-to-first events for 4 endpoints:
+  - Time-to-first-harsh-event (harsh_accel_count > 0 or harsh_decel_count > 0)
+  - Time-to-first-high-CV-trip (speed_cv > 75th percentile)
+  - Time-to-first-speeding (legacy, secondary)
+  - Time-to-platform-churn (demand — NEW)
+- [ ] 4.4 KM curves for each endpoint, stratified by TUB usage. Save multi-panel KM figure (Fig 8).
+- [ ] 4.5 Cox PH with time-varying TUB covariate for each endpoint. Report HRs.
+- [ ] 4.6 TUB mediation percentage for each outcome.
 
-All writing in `src/paper/`. Uses CAS template (`cas-sc.cls`).
+## Phase 5: Narrative Selection & Paper Writing (Priority: HIGH — after Phases 1-4)
 
-- [ ] 4.1 Write Introduction (~800 words). Focus on safety problem, governor question, our evidence.
-- [ ] 4.2 Write Background (~1,000 words). E-scooter safety, speed governance, natural experiments in safety.
-- [ ] 4.3 Write Data and Setting (~800 words). Swing platform, dataset, Dec 2023 event, data quality. Table 1.
-- [ ] 4.4 Write Methods (~1,200 words). All 7 methods sections per NEWPLAN.md.
-- [ ] 4.5 Write Results (~2,000 words). All 5 results sections per NEWPLAN.md. Reference all figures/tables.
-- [ ] 4.6 Write Discussion (~800 words). Converging evidence, 3 policy recs, comparison, limitations.
-- [ ] 4.7 Write Conclusions (~400 words).
-- [ ] 4.8 Compile references.bib with verified entries from existing bib + any new AAP-relevant refs.
-- [ ] 4.9 Compile paper: pdflatex + bibtex. Fix all warnings. Target ~7,000 words.
-- [ ] 4.10 Push to Overleaf: `git subtree push --prefix=src/paper overleaf master`.
+- [ ] 5.0 **DECISION POINT**: Review all Block 1-4 results. Select narrative framing:
+  - A: "Behavioral Fingerprint" — methods-forward (if multi-outcome framework is strongest)
+  - B: "Behavioral Cost" — policy-forward (if demand response or null compensation is key)
+  - C: "One Lever, Many Margins" — theory-forward (if Peltzman test is most compelling)
+  Select title from NEWPLAN.md candidates.
+- [ ] 5.1 Write Introduction (~800 words). Tautology framing, unconstrained margins.
+- [ ] 5.2 Write Background (~1,000 words). Peltzman, demand elasticity, natural experiments.
+- [ ] 5.3 Write Data and Setting (~800 words). Table 1 organized by safety x demand x dynamics.
+- [ ] 5.4 Write Methods (~1,500 words). Multi-outcome framework, 8 outcomes, 4 blocks.
+- [ ] 5.5 Write Results (~2,500 words). Manipulation check -> safety -> demand -> dynamics -> causal -> compensation -> escalation.
+- [ ] 5.6 Write Discussion (~1,000 words). Synthesis, Peltzman comparison, policy.
+- [ ] 5.7 Write Conclusions (~400 words).
+- [ ] 5.8 Compile: pdflatex + bibtex. Fix all warnings. Target ~8,000-10,000 words.
+- [ ] 5.9 Push to Overleaf.
 
-## Phase 5: Quality Assurance (Priority: MEDIUM)
+## Phase 6: Quality Assurance (Priority: MEDIUM)
 
-- [ ] 5.1 Verify all bib entries against academic databases.
-- [ ] 5.2 Check all figure cross-references resolve.
-- [ ] 5.3 Word count check (target 6,000-8,000 for AAP).
-- [ ] 5.4 Proofread for AAP style: safety-focused language, policy recommendations prominent.
-- [ ] 5.5 Prepare highlights (5 bullet points, AAP format).
-- [ ] 5.6 Final Overleaf push.
+- [ ] 6.1 Verify all bib entries against academic databases.
+- [ ] 6.2 Check all figure cross-references resolve.
+- [ ] 6.3 Word count check (target 8,000-10,000 for AMAR).
+- [ ] 6.4 Proofread for AMAR style: methods-forward, econometric rigor.
+- [ ] 6.5 Final Overleaf push.
 
 ---
 
@@ -88,4 +105,5 @@ All writing in `src/paper/`. Uses CAS template (`cas-sc.cls`).
 5. All data outputs go in `data_parquet/v2/`
 6. All figures go in `figures/v2/` (PDF + PNG, 300 DPI)
 7. Paper files go in `src/paper/` (synced with Overleaf)
-8. At session end, write a report to `reports/YYYY-MM-DD.md`
+8. At session end, write a brief report to `reports/YYYY-MM-DD.md`
+9. **After any paper file change**: commit + push to Overleaf

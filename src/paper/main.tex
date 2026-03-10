@@ -12,7 +12,7 @@
 
 \linenumbers
 
-\shorttitle{Do Speed Governors Work?}
+\shorttitle{Behavioral Responses to E-Scooter Speed Governance}
 \shortauthors{S.\ Choi}
 
 \begin{document}
@@ -20,7 +20,12 @@
 \def\floatpagepagefraction{1}
 \def\textpagefraction{.001}
 
-\title[mode=title]{Do Speed Governors Work? Evidence from 21 Million E-Scooter Trips and a Natural Experiment in South Korea}
+% Working title — to be finalized after results
+% Candidates:
+%   A: Behavioral Fingerprint of Speed Governance: Multi-Dimensional Evidence from 21 Million E-Scooter Trips
+%   B: The Behavioral Cost of Speed Governance: A Multi-Outcome Natural Experiment
+%   C: One Lever, Many Margins: How Speed Governance Reshapes E-Scooter Riding Behavior
+\title[mode=title]{Behavioral Responses to E-Scooter Speed Governance: Multi-Outcome Evidence from 21 Million Trips}
 
 \author[1]{Seongjin Choi}[orcid=0000-0001-7140-537X]
 \ead{chois@umn.edu}
@@ -32,19 +37,19 @@
 \cortext[cor1]{Corresponding author}
 
 \begin{abstract}
-Speed is the primary modifiable risk factor for e-scooter injuries, yet no large-scale evidence exists on whether software speed governors---the most widely deployed technological countermeasure---actually reduce speeding. We address this gap using 21 million GPS-instrumented e-scooter trips from 52 South Korean cities (February--November 2023), exploiting variation across three speed modes offered by a single operator: ungoverned (TUB), standard (STD), and strict (ECO). Three independent lines of evidence converge. First, cross-sectional analysis reveals that the ungoverned TUB mode increases speeding odds 121-fold relative to the governed STD mode (GEE, $p < 0.001$), dominating all other predictors including age, time of day, and road type (SHAP importance 3.6$\times$ the next feature). Second, a natural experiment---the operator's system-wide removal of TUB mode in December 2023---provides causal evidence via difference-in-differences: cities with higher pre-ban TUB adoption experienced proportionally larger speeding reductions ($\beta = -0.568$, $p < 0.001$; dose-response $r = 0.754$), with no behavioral compensation on governed modes ($p = 0.59$). Third, survival analysis shows governors delay speeding onset 5.4-fold (median 81 vs.\ 15 trips to first speeding event; Cox time-varying HR $= 10.41$). These converging findings support mandatory speed governors, graduated mode access for new riders, and context-sensitive geofencing as evidence-based policy interventions.
+Software speed governors are the most widely deployed technological countermeasure for e-scooter speeding, yet asking whether they ``reduce speeding'' is tautological---a device that electronically caps speed mechanically prevents threshold exceedance by design. The more consequential questions concern whether governance reshapes riding behavior on \textit{unconstrained} margins: do riders compensate through more aggressive acceleration, more erratic speed profiles, or altered trip patterns? Does governance reduce ridership or cause platform abandonment? We address these questions using 21 million GPS-instrumented e-scooter trips from 52 South Korean cities (February--November 2023), analyzing eight genuinely behavioral outcomes organized into three categories---safety (harsh acceleration/deceleration, speed variability), demand (trip frequency, distance, user retention), and riding dynamics (cruising fraction, zero-speed fraction)---while treating speed reduction as a mechanical manipulation check. Four analytical blocks converge. Cross-sectional behavioral profiling reveals how governed and ungoverned modes differ across all outcome categories beyond the speed dimension. A natural experiment---the operator's system-wide removal of the ungoverned mode in December 2023---provides causal identification via multi-outcome difference-in-differences with continuous treatment intensity and Bonferroni correction, isolating which behavioral margins respond to governance and which do not. A within-user compensation test on all margins examines whether riders adjust on any unconstrained dimension after losing access to the ungoverned mode. Survival analysis with multiple event types (first harsh event, first high-variability trip, platform churn) quantifies how ungoverned mode availability accelerates behavioral escalation. Together, these analyses provide the first multi-outcome causal evidence on how speed governance reshapes e-scooter riding behavior beyond the governed speed dimension itself, with direct implications for mandatory governor policies and the behavioral cost of speed management.
 \end{abstract}
 
 \begin{keywords}
-e-scooter safety \sep speed governor \sep generalized estimating equations \sep difference-in-differences \sep survival analysis \sep natural experiment
+e-scooter safety \sep speed governance \sep behavioral compensation \sep multi-outcome difference-in-differences \sep risk homeostasis \sep demand response
 \end{keywords}
 
 \begin{highlights}
-\item Largest GPS-based e-scooter speed study: 21M trips across 52 cities over 10 months
-\item Speed governors reduce speeding odds 121-fold (cross-sectional, GEE)
-\item Natural experiment (TUB ban) provides causal evidence: 28pp speeding reduction
-\item No behavioral compensation on governed modes after ungoverned mode removal
-\item Governors delay speeding onset 5.4-fold (survival analysis, Cox HR = 10.41)
+\item Speed governance effects analyzed on genuinely behavioral margins---not the tautological speed reduction
+\item Eight outcomes across safety (harsh events, variability), demand (trips, retention), and riding dynamics
+\item Natural experiment (ungoverned mode removal) enables causal multi-outcome identification with Bonferroni correction
+\item Within-user compensation test on all unconstrained margins using mode-switcher design
+\item Multi-endpoint survival analysis including platform churn as a demand-side behavioral response
 \end{highlights}
 
 \maketitle
