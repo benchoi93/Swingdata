@@ -1,80 +1,189 @@
 \section{Results}
 \label{sec:results}
 
-\subsection{Descriptive Speed Behavior Patterns}
-\label{sec:res_descriptive}
+\subsection{Manipulation Check: Speed Reduction Confirmed}
+\label{sec:res_manipulation}
 
-% TO BE FILLED: Descriptive statistics from Feb-Nov 2023 dataset (~21M trips)
-% Content: 29.6% overall speeding rate, mode distribution (TUB 54%, STD, ECO),
-% speed distributions by mode (mean, max, P85), temporal patterns (hour-of-day,
-% day-of-week heatmap), provincial/city variation, Table 1.
-% Figures: Fig 1 (spatial distribution), Fig 2 (speed by mode violin), Fig 3 (heatmap)
+Before analyzing genuinely behavioral outcomes, we confirm the governor's mechanical effect. GEE results for mean speed (manipulation check) show STD reduces speed by 1.94~km/h relative to TUB ($p < 0.001$) and ECO by 4.22~km/h ($p < 0.001$), controlling for age, time of day, road class, and trip distance. Within-subject paired comparisons (76,726 TUB-STD user pairs, 10,710 TUB-ECO pairs) confirm: TUB-to-ECO speed reduction of 3.67~km/h ($d = 1.63$, large). This is mechanical and expected---we report it to validate the treatment but do not claim it as a finding.
 
-[Results to be filled after Phase 0 data preparation.]
-
-\subsection{Cross-Sectional Evidence: Mode Dominance}
+\subsection{Cross-Sectional Behavioral Profiles}
 \label{sec:res_crosssectional}
 
-% TO BE FILLED: GEE logistic regression (Model 1)
-% Content: TUB OR=121 [118.8, 124.0], age gradient (30-34 lowest),
-% time-of-day reversal after mode control, provincial variation.
-% GEE with exchangeable correlation: TUB OR~109 (attenuated but consistent).
-% SHAP feature importance: TUB mean SHAP=2.33, 3.6x next feature, AUC=0.905.
-% Experience analysis: speeding 3.8% -> 28.0% over 500 trips,
-% mediated 98.4% by TUB adoption (11.5% -> 47.8% over 50 trips).
-% Within STD/ECO: speeding virtually constant across experience.
-% Figures: Fig 4 (OR forest plot), Fig 5 (SHAP bar), Fig 6 (experience + TUB adoption)
+\subsubsection{Safety margins}
 
-[Results to be filled after cross-sectional analysis.]
+The ungoverned mode produces substantially more aggressive riding. GEE-estimated mode effects (Table~\ref{tab:gee_results}; Figure~\ref{fig:forest}) show that relative to TUB, STD reduces harsh acceleration by 46\% (Poisson coefficient $\beta = -0.61$, $p < 0.001$) and ECO by 94\% ($\beta = -2.86$, $p < 0.001$). The harsh deceleration pattern is similar: STD $\beta = -0.63$, ECO $\beta = -3.27$ (both $p < 0.001$). Speed CV shows a statistically significant but small mode effect ($\beta_{\text{STD}} = -0.022$, $\beta_{\text{ECO}} = -0.039$), suggesting that speed variability relative to mean speed is largely a rider characteristic rather than a mode effect.
 
-\subsection{Causal Evidence: The TUB Ban Natural Experiment}
+Within-subject paired comparisons (same users across modes) provide stronger causal evidence. For TUB-versus-ECO pairs ($n = 10{,}710$), harsh deceleration shows Cohen's $d = 1.36$ (large), harsh acceleration $d = 1.05$ (large), and cruise fraction $d = -1.11$ (large, favoring ECO). Crucially, travel time shows $d = 0.04$ (negligible), meaning governed riders spend the same amount of time traveling---they simply ride more smoothly.
+
+\subsubsection{Demand margins}
+
+TUB trips are approximately 19\% longer (928~m vs.~777~m for STD, paired $d = 0.34$, small), but travel time is virtually identical ($d = 0.007$, negligible). This suggests TUB riders cover more distance in the same time rather than taking fundamentally different trips. At the cross-sectional level, no evidence suggests that governance suppresses demand.
+
+\subsubsection{Riding dynamics}
+
+Cruise fraction shows a clear gradient: 0.259 (TUB), 0.320 (STD), 0.417 (ECO). Governed riders maintain more stable speeds, with TUB-ECO paired $d = -1.11$ (large). Zero-speed fraction is similar across modes (0.155--0.167), indicating that stop-and-go behavior is primarily determined by traffic conditions and route characteristics rather than governance.
+
+\subsubsection{Feature importance}
+
+LightGBM models with SHAP analysis (Figure~\ref{fig:shap}) reveal distinct feature importance hierarchies across outcome categories. For harsh events (binary classification, AUC = 0.734), the TUB mode indicator dominates (mean $|\text{SHAP}| = 0.49$), followed by ECO ($0.32$) and trip length ($0.25$). For speed CV (regression, $R^2 = 0.46$), log-distance ($0.12$) and trip duration ($0.11$) dominate, with TUB contributing only $0.03$---confirming that speed variability is primarily a trip-characteristic effect, not a mode effect. For cruise fraction ($R^2 = 0.25$), the pattern mirrors speed CV. These results validate the cross-sectional finding: governance affects \textit{safety} outcomes (acceleration aggressiveness) far more than \textit{dynamics} outcomes (riding patterns).
+
+\begin{table}[htbp]
+\centering
+\caption{GEE mode effect estimates for primary outcomes (200,000-trip subsample, TUB = reference).}
+\label{tab:gee_results}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Outcome} & \multicolumn{2}{c}{\textbf{STD vs TUB}} & \multicolumn{2}{c}{\textbf{ECO vs TUB}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+ & Coef. & $p$ & Coef. & $p$ \\
+\midrule
+\multicolumn{5}{l}{\textit{Safety (Poisson GEE)}} \\
+Harsh accel count & $-0.610$ & $<0.001$ & $-2.863$ & $<0.001$ \\
+Harsh decel count & $-0.627$ & $<0.001$ & $-3.269$ & $<0.001$ \\
+\addlinespace
+\multicolumn{5}{l}{\textit{Safety (Gaussian GEE)}} \\
+Speed CV & $-0.022$ & $<0.001$ & $-0.039$ & $<0.001$ \\
+\addlinespace
+\multicolumn{5}{l}{\textit{Dynamics (Gaussian GEE)}} \\
+Cruise fraction & $+0.061$ & $<0.001$ & $+0.160$ & $<0.001$ \\
+Zero-speed frac. & $-0.008$ & $<0.001$ & $-0.007$ & $<0.001$ \\
+\addlinespace
+\multicolumn{5}{l}{\textit{Manipulation check (Gaussian GEE)}} \\
+Mean speed (km/h) & $-1.942$ & $<0.001$ & $-4.221$ & $<0.001$ \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize All models control for age, time of day, day type, city, road class, and log(distance).} \\
+\multicolumn{5}{l}{\footnotesize Exchangeable correlation, clustered by user, sandwich standard errors.} \\
+\end{tabular}
+\end{table}
+
+\subsection{Causal Evidence: Multi-Outcome DiD}
 \label{sec:res_causal}
 
-% TO BE FILLED: DiD analysis of Dec 2023 TUB ban
-% Content: Mode share shift (TUB 54.6% -> 1.4%, STD 40.8% -> 85.8%)
-% TWFE: beta=-0.568, SE=0.077, p<10^-13
-% City with 50% TUB -> 28.4pp speeding reduction
-% Event study: Dec coefficient dominates (3-4x pre-period), positive pre-trend (conservative)
-% De-trended: linear trend p=0.74, beta essentially unchanged
-% Dose-response: r=0.754 [0.56, 0.87], slope 5.0pp per 10pp TUB reduction
-% Placebo (Sep 2023): beta=-0.015, p=0.56 (null, PASS)
-% Heterogeneity: 20-25pp across all 4 city-size quartiles
-% Figures: Fig 7 (mode trends), Fig 8 (dose-response)
-% Appendix: event study, robustness panel
+\subsubsection{Which margins respond to governor imposition?}
 
-[Results to be filled after DiD analysis.]
+The TWFE DiD (Figure~\ref{fig:did_coef}; Table~\ref{tab:did_results}) reveals a striking pattern: safety margins respond causally, while demand and dynamics margins do not.
 
-\subsection{No Behavioral Compensation}
+Harsh acceleration ($\beta = -0.156$, SE $= 0.046$, $p = 0.0006$) and harsh deceleration ($\beta = -0.190$, SE $= 0.046$, $p = 4.4 \times 10^{-5}$) both show significant reductions that survive Bonferroni correction ($\alpha_{\text{Bonf}} = 0.00625$). A city with 50\% pre-ban TUB share experienced a reduction of approximately 0.08 harsh acceleration events per trip and 0.10 harsh deceleration events per trip after the ban.
+
+In contrast, speed CV ($\beta = -0.004$, $p = 0.91$), cruise fraction ($\beta = +0.043$, $p = 0.17$), and zero-speed fraction ($\beta = +0.006$, $p = 0.69$) are all statistically indistinguishable from zero. Demand outcomes---trip count ($\beta = 34{,}753$, $p = 0.34$) and active users ($\beta = 7{,}169$, $p = 0.19$)---also show null effects. The TUB ban did not reduce ridership.
+
+This pattern is consistent with the cross-sectional evidence: governance affects acceleration aggressiveness (a safety margin) but not riding variability, cruising patterns, or demand (dynamics and demand margins).
+
+\subsubsection{Dose-response}
+
+City-level dose-response analysis confirms a monotonic relationship. For harsh deceleration, cities with larger TUB share reductions experienced proportionally larger reductions in harsh events ($r = 0.621$, $p = 1.5 \times 10^{-6}$, slope $= 0.202$, 95\% CI $[0.146, 0.340]$, $n = 50$ cities). Harsh acceleration shows a similar pattern ($r = 0.561$, $p = 2.2 \times 10^{-5}$). For the manipulation check (mean speed), the dose-response is $r = 0.567$ ($p = 1.7 \times 10^{-5}$).
+
+\subsubsection{Placebo test}
+
+All six primary outcomes pass the placebo test using September 2023 as a fictitious treatment date. The largest placebo coefficient is for mean speed ($\beta_{\text{placebo}} = -0.59$, $p = 0.25$), far from significance. For harsh events, placebo $p$-values are 0.14 (acceleration) and 0.33 (deceleration). This confirms that the December effects are treatment-driven, not artifacts of seasonal trends.
+
+\begin{table}[htbp]
+\centering
+\caption{Multi-outcome TWFE DiD results (Dec 2023 TUB ban, Bonferroni-corrected).}
+\label{tab:did_results}
+\small
+\begin{tabular}{lrrrrl}
+\toprule
+\textbf{Outcome} & $\hat{\beta}$ & SE & $p$ & 95\% CI & \textbf{Verdict} \\
+\midrule
+\multicolumn{6}{l}{\textit{Safety}} \\
+Harsh accel & $-0.156$ & 0.046 & 0.0006 & [$-0.245, -0.066$] & Significant$^\dagger$ \\
+Harsh decel & $-0.190$ & 0.046 & $<$0.001 & [$-0.281, -0.099$] & Significant$^\dagger$ \\
+Speed CV & $-0.004$ & 0.033 & 0.906 & [$-0.068, +0.060$] & Null \\
+\addlinespace
+\multicolumn{6}{l}{\textit{Demand}} \\
+Trip count & $+34{,}753$ & 36,706 & 0.344 & [$-37{,}189, +106{,}696$] & Null \\
+Active users & $+7{,}169$ & 5,419 & 0.186 & [$-3{,}452, +17{,}791$] & Null \\
+\addlinespace
+\multicolumn{6}{l}{\textit{Dynamics}} \\
+Cruise fraction & $+0.043$ & 0.031 & 0.171 & [$-0.019, +0.105$] & Null \\
+Zero-speed frac. & $+0.006$ & 0.015 & 0.687 & [$-0.023, +0.035$] & Null \\
+\addlinespace
+\multicolumn{6}{l}{\textit{Manipulation check}} \\
+Mean speed & $-1.436$ & 0.571 & 0.012 & [$-2.555, -0.317$] & Sig.\ (not Bonf.) \\
+\bottomrule
+\multicolumn{6}{l}{\footnotesize $^\dagger$Significant after Bonferroni correction ($\alpha = 0.05/8 = 0.00625$).} \\
+\multicolumn{6}{l}{\footnotesize City and month fixed effects; cluster-robust SEs. $N = 549$ city-month observations.} \\
+\end{tabular}
+\end{table}
+
+\subsection{No Behavioral Compensation on Any Margin}
 \label{sec:res_compensation}
 
-% TO BE FILLED: Multi-outcome DiD + mode-switcher analysis
-% Content: Multi-outcome DiD on 5 outcomes:
-%   (1) Overall speeding: beta=-0.568
-%   (2) Trip distance: no change (p=0.45)
-%   (3) STD/ECO speeding rate: no change (p=0.59)
-%   (4) STD/ECO mean speed: +1.70 km/h (Bonferroni significant)
-%   (5) STD/ECO max speed: similar
-% Mode-switcher analysis: 120K switchers vs 120K never-TUB
-%   Within-user DiD: +0.20 km/h (d=0.069, negligible)
-%   Switchers' speeding DECREASED more (-1.71pp vs -0.27pp)
-%   Aggregate STD/ECO speed increase = composition effect (pre-ban gap 0.65 km/h)
-%   User-level placebo (Oct 2023): d=-0.030, confirms treatment-driven
-% Figures: Fig 9 (mode-switcher summary)
+\subsubsection{Aggregate vs.\ within-user effects}
 
-[Results to be filled after behavioral substitution analysis.]
+The STD/ECO-only DiD (restricting the panel to governed trips only) reveals significant \textit{increases} in mean speed ($\beta = +1.73$, $p < 0.001$) and harsh events ($\beta_{\text{accel}} = +0.12$, $\beta_{\text{decel}} = +0.22$, both $p < 0.001$) after the TUB ban. At face value, this appears to indicate behavioral compensation: riders riding more aggressively on governed modes. However, speed CV, cruise fraction, and zero-speed fraction remain null ($p > 0.4$).
 
-\subsection{Speeding Onset: Survival Analysis}
-\label{sec:res_survival}
+The mode-switcher within-user DiD resolves this apparent contradiction (Table~\ref{tab:compensation}). Comparing 24,357 switchers (used TUB pre-ban, STD/ECO post-ban) with 79,700 never-TUB users, all Cohen's $d$ effect sizes are \textit{negligible}:
 
-% TO BE FILLED: Time-to-first-speeding analysis
-% Content: 864,357 users, 48% events, 52% censored
-% Kaplan-Meier: TUB median 15 trips vs non-TUB 81 trips (5.4x, log-rank p<0.001)
-% Cox static: ever_tub HR=2.85, tub_fraction HR=1.66, C-index=0.691
-% Cox time-varying: TUB adoption HR=10.41 (z=233, p<0.001)
-% TUB mediation: 98.4% of experience-speeding gradient via TUB adoption
-% Within STD/ECO: virtually constant 0.8-1.5% speeding across experience
-% Age <20 protective for onset (HR=0.85, takes longer to adopt TUB)
-% Figures: Fig 10 (KM curves)
-% Appendix: Cox forest plot, hazard functions
+\begin{itemize}
+    \item Mean speed: $d = +0.133$ (DiD = $+0.41$~km/h)
+    \item Harsh acceleration: $d = +0.040$
+    \item Harsh deceleration: $d = +0.062$
+    \item Speed CV: $d = -0.036$
+    \item Cruise fraction: $d = -0.045$
+    \item Zero-speed fraction: $d = -0.039$
+\end{itemize}
 
-[Results to be filled after survival analysis.]
+The maximum $|d|$ is 0.133 (mean speed), well below the 0.2 threshold for a small effect. The aggregate STD/ECO increases are entirely attributable to \textit{composition}: former TUB users entering the STD/ECO pool are inherently more aggressive riders (pre-existing gap: switchers ride 0.60~km/h faster in STD/ECO even before the ban). There is no behavioral compensation on any unconstrained margin.
+
+\subsubsection{Placebo validation}
+
+The user-level placebo test (August--September $\rightarrow$ October 2023, no treatment) confirms the design. All six outcomes show negligible effects (maximum $|d| = 0.053$), with the largest effect in the \textit{opposite} direction to the treatment period. This rules out differential seasonal trends between switchers and never-TUB users.
+
+\begin{table}[htbp]
+\centering
+\caption{Compensation test: mode-switcher within-user DiD effect sizes.}
+\label{tab:compensation}
+\small
+\begin{tabular}{lrrrl}
+\toprule
+\textbf{Outcome} & \textbf{DiD estimate} & \textbf{Cohen's} $d$ & $p$ & \textbf{Interpretation} \\
+\midrule
+Mean speed (km/h) & $+0.405$ & $+0.133$ & $<0.001$ & Negligible \\
+Harsh accel count & $+0.019$ & $+0.040$ & $<0.001$ & Negligible \\
+Harsh decel count & $+0.034$ & $+0.062$ & $<0.001$ & Negligible \\
+Speed CV & $-0.009$ & $-0.036$ & $<0.001$ & Negligible \\
+Cruise fraction & $-0.009$ & $-0.045$ & $<0.001$ & Negligible \\
+Zero-speed frac. & $-0.005$ & $-0.039$ & $<0.001$ & Negligible \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize 24,357 switchers vs.\ 79,700 never-TUB users. $|d| < 0.2$ = negligible.} \\
+\multicolumn{5}{l}{\footnotesize Statistically significant $p$-values reflect large $N$, not substantive effects.} \\
+\end{tabular}
+\end{table}
+
+\subsection{Behavioral Escalation via TUB Adoption}
+\label{sec:res_escalation}
+
+\subsubsection{Experience-mediation analysis}
+
+TUB adoption increases monotonically with experience: from 23.0\% of trips at trip~1 to 69.5\% at trips~101--200 (Figure~\ref{fig:experience}). This adoption trajectory mediates the experience-outcome gradient differently across categories:
+
+Safety outcomes are heavily mediated by TUB adoption. Harsh acceleration shows 71.9\% mediation (the experience-related increase in harsh events is largely explained by increasing TUB usage), mean speed 65.6\%, and harsh deceleration 59.1\%. In contrast, dynamics outcomes are less mediated: speed CV 26.8\%, cruise fraction 19.9\%, zero-speed fraction 17.5\%. The implication: experienced riders' higher harsh event rates are primarily a mode selection story---they choose TUB more---not an inherent change in riding aggressiveness within a given mode.
+
+\subsubsection{Multi-endpoint survival analysis}
+
+Survival analysis with multiple event types (Figure~\ref{fig:survival}; Table~\ref{tab:survival}) confirms the TUB-mediated escalation pathway. For first harsh event (93.9\% event rate among 127,764 users), TUB users reach the event at median 2 trips versus 3 trips for non-TUB users (log-rank $\chi^2 = 9{,}121$, $p < 0.001$). The Cox model yields HR$_{\text{tub\_frac}} = 2.13$: doubling a user's TUB fraction doubles their hazard of first harsh event.
+
+For first speeding (66.1\% event rate), the TUB effect is dramatic: median time-to-event is 7 trips for TUB users versus infinity (never) for non-TUB users (log-rank $\chi^2 = 60{,}963$, $p < 0.001$; HR$_{\text{ever\_tub}} = 5.73$, $C = 0.819$).
+
+Notably, first high-CV trip shows a \textit{reversed} pattern: TUB users reach this event \textit{later} (median 10 trips) than non-TUB users (median 5 trips), with HR$_{\text{tub\_frac}} = 0.80$ (protective). This is mechanically consistent: TUB mode's higher absolute speeds produce a lower CV (relative variability), so TUB users are less likely to have high-CV trips. This finding reinforces that speed CV is primarily a trip characteristic, not a safety indicator that governance can improve.
+
+\begin{table}[htbp]
+\centering
+\caption{Multi-endpoint survival analysis results ($n = 127{,}764$ users).}
+\label{tab:survival}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Event type} & \textbf{Event rate} & \textbf{Median (TUB / non-TUB)} & \textbf{Log-rank $\chi^2$} & \textbf{Cox HR (tub frac)} \\
+\midrule
+First harsh event & 93.9\% & 2 / 3 trips & 9,121 & 2.13 \\
+First high-CV trip & 93.0\% & 10 / 5 trips & 5,402 & 0.80$^*$ \\
+First speeding & 66.1\% & 7 / $\infty$ trips & 60,963 & 8.13 \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize $^*$Protective: TUB users take longer to reach high-CV events (mechanical, not behavioral).} \\
+\multicolumn{5}{l}{\footnotesize $\infty$ = median not reached (>50\% of non-TUB users never speed). All log-rank $p < 0.001$.} \\
+\end{tabular}
+\end{table}

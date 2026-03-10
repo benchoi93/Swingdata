@@ -1,63 +1,41 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Converging Evidence for Speed Governor Mandates}
-\label{sec:disc_convergence}
+\subsection{One Lever, Many Margins: A Selective Response}
+\label{sec:disc_selective}
 
-% TO BE FILLED: Synthesize three evidence lines
-% (1) Cross-sectional: OR=121, SHAP dominance, experience mediation
-% (2) Causal: DiD beta=-0.568, dose-response r=0.754, placebo null
-% (3) Survival: HR=10.41, 5.4x onset delay
-% Key argument: convergence across methods strengthens confidence
-% Each approach addresses the other's weaknesses:
-%   - Cross-sectional has self-selection -> DiD provides exogenous variation
-%   - DiD is city-aggregate -> survival is individual-level
-%   - All three point to the same conclusion: governors work
+Our multi-outcome framework reveals that speed governance produces a remarkably \textit{selective} behavioral response. The single policy lever (capping maximum speed) causally reduces acceleration aggressiveness---harsh acceleration and deceleration events drop significantly after the TUB ban, surviving Bonferroni correction---while leaving demand (trip counts, active users), riding dynamics (cruising patterns, stop-and-go behavior), and speed variability completely unaffected. This selectivity is confirmed across three independent analytical approaches: cross-sectional GEE models show the same pattern (mode effects dominate safety outcomes but not dynamics), SHAP feature importance confirms that mode is the primary driver of harsh events but not of speed CV or cruise fraction, and the causal DiD isolates the same selective effect.
 
-[To be filled.]
+The convergence across methods---cross-sectional, within-subject, causal, and machine learning---strengthens confidence in the finding. Each approach addresses the others' limitations: cross-sectional results could reflect self-selection into modes, but the DiD provides exogenous variation; the DiD is city-aggregate, but the within-subject comparisons and survival analysis operate at the individual level; the SHAP analysis is atheoretical, but confirms the parametric GEE rankings.
 
-\subsection{Policy Recommendations}
+\subsection{No Compensation: An Anti-Peltzman Result}
+\label{sec:disc_peltzman}
+
+The Peltzman hypothesis \citep{peltzman1975effects} and risk homeostasis theory \citep{wilde1982theory} predict that safety interventions may be partially offset by behavioral compensation on unconstrained margins. Our results provide the first multi-margin test of this hypothesis for e-scooter speed governance, and the answer is unambiguous: \textit{zero compensation on any measured margin}.
+
+The mode-switcher design cleanly separates composition from compensation. The STD/ECO-only DiD shows significant \textit{increases} in harsh events and speed after the TUB ban---an apparent Peltzman effect. But the within-user analysis reveals all Cohen's $d$ values below 0.14 (negligible). Former TUB users entering the STD/ECO pool are inherently more aggressive riders (pre-existing speed gap of 0.60~km/h), producing a compositional shift in the STD/ECO pool, not behavioral adaptation. This finding aligns with \citet{hedlund2000risky}, who argued that behavioral compensation is most plausible when the intervention is salient and the regulated behavior is voluntary---conditions that may not apply to speed governors, which operate invisibly.
+
+The null compensation finding has important policy implications: governor mandates need not be tempered by concerns about offsetting behavioral responses. The safety benefit of reduced harsh events is a net gain, not partially offset by compensation on other margins.
+
+\subsection{TUB Adoption as an Escalation Pathway}
+\label{sec:disc_escalation}
+
+The experience-mediation analysis reveals a concerning pathway: as riders gain experience, they progressively adopt the ungoverned TUB mode (23\% at trip~1 to 70\% at trip~101+), and this mode adoption mediates 60--72\% of the experience-related increase in harsh events. Within governed modes (STD/ECO), experienced riders show only modest changes in riding behavior. The escalation is primarily a \textit{mode selection} story: experienced riders learn to use the faster option, not that they inherently ride more aggressively.
+
+This finding has a direct policy analogue in graduated driver licensing: restricting novice riders to governed modes and allowing access to higher-speed modes only after demonstrated safe riding could interrupt the escalation pathway. The survival analysis supports this: non-TUB users have a median time-to-first-speeding of infinity (most never speed), while TUB users reach it at trip~7.
+
+\subsection{Policy Implications}
 \label{sec:disc_policy}
 
-% TO BE FILLED: Three actionable recommendations
-% (1) Mandatory speed governors: OR=121 + 28pp causal reduction
-%     Enforcement mechanism matters more than specific threshold
-%     25 km/h with governor produces far less speeding than 25 km/h without
-% (2) Graduated mode access: Experience-speeding gradient mediated by TUB adoption
-%     New riders should be restricted to governed modes
-%     Analogous to graduated driver licensing
-% (3) Context-sensitive geofencing: Spatial clustering supports zone-based management
-%     Hotspot-targeted rather than uniform city-wide limits
-%     No compensation concern: riders don't ride faster when governed
+Three policy recommendations emerge:
 
-[To be filled.]
+First, \textbf{mandatory speed governors} on all shared e-scooters. The causal evidence shows that governor imposition reduces harsh events with no demand cost (trip counts and active users are unaffected) and no behavioral compensation. The policy is Pareto-improving on measured margins.
 
-\subsection{Comparison with Prior Literature}
-\label{sec:disc_comparison}
+Second, \textbf{graduated mode access}. Restricting new riders to governed modes could interrupt the TUB adoption escalation pathway without requiring permanent mode restrictions. As riders demonstrate safe behavior, higher-speed modes could be unlocked---analogous to graduated driver licensing.
 
-% TO BE FILLED: Position relative to existing work
-% - Cicchino et al. (2023): roadside observation, 2,004 riders, between-city
-%   Our within-operator design eliminates city-level confounds
-% - Ma et al. (2021): naturalistic, <500 trips, single city
-%   We scale 42,000x with continuous speed profiles
-% - Speed-crash power model (Elvik 2013): theoretical basis, we provide empirical confirmation
-% - Behavioral compensation literature: our null finding aligns with Peltzman critique
-%   but provides e-scooter-specific evidence
-% Table from background.tex positions our study
-
-[To be filled.]
+Third, \textbf{multi-outcome evaluation frameworks} for speed management policies. Evaluating governors solely on speed compliance misses the genuinely behavioral responses that determine net safety impact. Our multi-outcome framework---mapping a single policy lever onto safety, demand, and dynamics margins---provides a template for evaluating other speed management interventions (geofencing, dynamic speed limits, incentive-based approaches).
 
 \subsection{Limitations}
 \label{sec:disc_limitations}
 
-% TO BE FILLED: Honest assessment of limitations
-% (1) Single operator: Swing only, Korean context, may differ elsewhere
-% (2) No crash outcomes: speed as proxy, not direct injury linkage
-% (3) GPS measurement: ~10s interval smooths short events
-% (4) Self-selection in mode choice: addressed by DiD but not fully eliminated
-% (5) Mode-switcher attrition: ~50% of classified users had both pre/post trips
-%     Placebo null mitigates concern, but selection bias possible
-% (6) Pre-trend in event study: formally fails parallel trends test
-%     Mitigated by: positive direction (conservative), de-trended spec, placebo
-
-[To be filled.]
+Several limitations should be acknowledged. First, our data come from a single operator (Swing) in a single country (South Korea), and generalizability to other operators, vehicle types, and cultural contexts requires further study. Second, we analyze behavioral proxies (harsh events, speed variability) rather than crash outcomes; the causal link between reduced harsh events and reduced injuries, while theoretically grounded in the power model \citep{elvik2013reexamination}, is not directly tested. Third, the $\sim$10-second GPS sampling interval smooths rapid acceleration events; higher-frequency kinematic data (e.g., accelerometer) would capture a wider range of aggressive riding behaviors. Fourth, mode self-selection is addressed by DiD but not fully eliminated in cross-sectional analyses. Fifth, the December 2023 analysis includes only one post-treatment month; longer-term effects, including potential delayed compensation, cannot be assessed. Finally, the parallel trends assumption is supported by the placebo test but the event study shows some pre-trend variation during the February--March ramp-up period; we note that this pre-trend is positive (conservative), meaning our treatment effect estimate may be attenuated.

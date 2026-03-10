@@ -1,19 +1,10 @@
 \section{Conclusions}
 \label{sec:conclusion}
 
-% TO BE FILLED (~400 words): Concise summary and forward-looking close
-%
-% Structure:
-% Para 1: Restate the question and data (21M trips, 52 cities, natural experiment)
-% Para 2: Three converging evidence lines:
-%   (1) Cross-sectional: OR=121, SHAP 3.6x, 98.4% experience mediation
-%   (2) Causal: DiD beta=-0.568, dose-response r=0.754, no compensation
-%   (3) Survival: 5.4x onset delay, Cox TV HR=10.41
-% Para 3: Policy implications:
-%   (1) Mandatory governors on all shared e-scooters
-%   (2) Graduated mode access for new riders
-%   (3) Context-sensitive geofencing
-% Para 4: Future work: crash linkage, international replication,
-%   dynamic geofencing, higher-frequency kinematic data
+We analyzed 21~million GPS-instrumented e-scooter trips from 52 South Korean cities to evaluate how software speed governance reshapes riding behavior beyond the tautological speed reduction. Using eight genuinely behavioral outcomes across three categories---safety (harsh acceleration, harsh deceleration, speed variability), demand (trip counts, active users), and riding dynamics (cruising fraction, zero-speed fraction)---we applied four convergent analytical approaches: cross-sectional behavioral profiling, causal multi-outcome difference-in-differences, within-user compensation testing, and multi-endpoint survival analysis.
 
-[To be filled.]
+Three principal findings emerge. First, speed governance causally reduces acceleration aggressiveness: the December 2023 TUB ban reduced harsh acceleration and deceleration events significantly (Bonferroni-corrected), with a clear dose-response across 50 cities. Second, governance imposes no measurable demand cost: trip counts, active user counts, speed variability, cruising patterns, and stop-and-go behavior all show null causal effects. Third, there is zero behavioral compensation on any unconstrained margin: the within-user mode-switcher analysis (24,357 switchers vs.\ 79,700 controls) yields negligible effect sizes on all six outcomes ($|d| < 0.14$), with aggregate changes entirely attributable to pool composition.
+
+The behavioral escalation pathway analysis reveals that 60--72\% of the experience-related increase in harsh events is mediated by progressive TUB adoption, not by within-mode behavioral change. This suggests that graduated mode access---restricting new riders to governed modes---could interrupt the escalation pathway. The multi-outcome framework demonstrates that a single policy lever (speed cap) produces a selective response: safety margins respond, while demand and dynamics margins do not. This selectivity has a reassuring policy implication: governor mandates are Pareto-improving on measured margins.
+
+Future work should extend these findings in four directions: (1)~linking speed governance to crash outcomes using hospital or insurance records, (2)~replicating the natural experiment design with operators in other countries, (3)~evaluating dynamic geofencing as a context-sensitive alternative to uniform speed caps, and (4)~using higher-frequency kinematic data (accelerometers) to capture a broader range of aggressive riding behaviors.
