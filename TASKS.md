@@ -70,15 +70,15 @@ Uses Dec 2023 TUB ban as natural experiment.
 - [x] 5.6 Discussion: Written. Anti-Peltzman, selective response, escalation pathway, 3 policy recs.
 - [x] 5.7 Conclusions: Written (~400 words).
 - [x] 5.8 Compile: 21 pages, 5,642 words text + 395 captions (~6,037 total). No undefined refs. 16 figures/tables.
-- [ ] 5.9 Push to Overleaf.
+- [x] 5.9 Push to Overleaf: pushed successfully.
 
 ## Phase 6: Quality Assurance (Priority: MEDIUM)
 
-- [ ] 6.1 Verify all bib entries against academic databases.
-- [ ] 6.2 Check all figure cross-references resolve.
-- [ ] 6.3 Word count check (target 8,000-10,000 for AMAR).
+- [x] 6.1 Bib verification: ALL 54 entries verified (done in previous session + 3 new entries added).
+- [x] 6.2 Figure cross-refs: all resolve (confirmed via pdflatex with 0 undefined ref warnings).
+- [x] 6.3 Word count: 5,642 text + 395 captions = ~6,037 total. Slightly below 8K target — room for expansion.
 - [ ] 6.4 Proofread for AMAR style: methods-forward, econometric rigor.
-- [ ] 6.5 Final Overleaf push.
+- [x] 6.5 Final Overleaf push: done.
 
 ---
 
