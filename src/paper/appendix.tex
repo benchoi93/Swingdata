@@ -5,249 +5,76 @@
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_mixed_effects_coefficients.pdf}
-\caption{Fixed-effect coefficient estimates from the mixed-effects linear model (Model~2, $n = 100{,}000$ trips). Points indicate estimated coefficients; horizontal bars indicate 95\% confidence intervals. The vertical dashed line at 0 indicates the null effect.}
-\label{fig:mixed_effects}
+\includegraphics[width=\textwidth]{v2/fig1_radar_behavioral_profile.pdf}
+\caption{Multi-dimensional behavioral profiles by operating mode (TUB, STD, ECO). Values are normalized to [0,1] range for each outcome. TUB mode dominates on harsh events (aggressive riding) while ECO dominates on cruise fraction (stable riding). Speed CV is nearly identical across modes.}
+\label{fig:radar}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_ols_mean_speed_coefficients.pdf}
-\caption{OLS regression coefficients for trip-level mean speed (full dataset, $n = 2{,}319{,}886$ scooter-mode trips, $R^2 = 0.28$). Included as a robustness check against the mixed-effects model (Figure~\ref{fig:mixed_effects}).}
-\label{fig:ols_coefficients}
+\includegraphics[width=\textwidth]{v2/fig2_forest_gee_coefficients.pdf}
+\caption{GEE coefficient forest plot for all primary outcomes (200,000-trip subsample). TUB is the reference mode. Points show estimated coefficients; error bars show 95\% confidence intervals. Safety outcomes (harsh events) show the strongest mode differentiation.}
+\label{fig:forest}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/multinomial_coefficients.pdf}
-\caption{Multinomial logistic regression coefficients predicting GMM rider typology class membership (reference: Safe Rider). Relative risk ratios (RRR) are shown for each covariate by class. Error bars indicate 95\% confidence intervals.}
-\label{fig:multinomial}
+\includegraphics[width=0.9\textwidth]{v2/fig3_shap_safety_harsh_event.pdf}
+\caption{SHAP summary plot for the harsh event classification model (LightGBM, AUC = 0.734). TUB mode indicator dominates with mean $|\text{SHAP}| = 0.49$, confirming that mode selection is the primary determinant of harsh event occurrence.}
+\label{fig:shap}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_morans_comparison.pdf}
-\caption{Comparison of global Moran's $I$ values across five cities, illustrating the variation in spatial autocorrelation strength of speeding rates. Error bars indicate the 95\% confidence interval from 999 random permutations.}
-\label{fig:morans_comparison}
+\includegraphics[width=\textwidth]{v2/fig4_did_multi_outcome.pdf}
+\caption{Multi-outcome DiD coefficients with Bonferroni correction (KEY FIGURE). Red bars indicate Bonferroni-significant effects; orange bars indicate nominal significance ($p < 0.05$); gray bars indicate non-significant effects. Only harsh acceleration and deceleration survive Bonferroni correction.}
+\label{fig:did_coef}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_hotspot_infrastructure.pdf}
-\caption{Infrastructure profiles of speeding hotspots vs.\ coldspots across five cities. Comparison of mean road class composition, cycling infrastructure fraction, and major road fraction between Getis-Ord $G_i^*$ hot spots and cold spots.}
-\label{fig:hotspot_infra}
+\includegraphics[width=\textwidth]{v2/fig5_demand_response.pdf}
+\caption{Demand response to TUB ban by city treatment intensity. Trip counts and active users indexed to February 2023 baseline, stratified by TUB share quartiles. The December decline is seasonal (all quartiles drop similarly), not treatment-driven.}
+\label{fig:demand}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_corridor_speeding.pdf}
-\caption{Corridor-level speeding analysis for Seoul. Speeding rates along major corridors (Gangnam, Hongdae, Yeouido) showing spatial variation in speed behavior at the road-segment level.}
-\label{fig:corridor}
+\includegraphics[width=\textwidth]{v2/fig6_compensation_cohens_d.pdf}
+\caption{Compensation test: Cohen's $d$ effect sizes for mode-switcher within-user DiD across all behavioral margins. All effects are negligible ($|d| < 0.2$), indicating zero behavioral compensation on any unconstrained margin.}
+\label{fig:compensation}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/map_matching_evaluation.pdf}
-\caption{Map-matching validation results. Comparison of HMM-based map matching (Leuven) vs.\ nearest-edge approach on a sample of 200 Seoul trips, showing match rate, road class agreement, and computation time trade-offs.}
-\label{fig:map_matching}
-\end{figure}
-
-\section{Robustness Check Results}
-\label{sec:appendix_robust}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/robustness_threshold.pdf}
-\caption{Threshold sensitivity analysis. Logistic regression odds ratios re-estimated at alternative speeding thresholds of 20~km/h and 30~km/h (compared to the main 25~km/h threshold). The TUB mode effect is consistent across thresholds.}
-\label{fig:robust_threshold}
+\includegraphics[width=\textwidth]{v2/fig7_experience_trajectories.pdf}
+\caption{Experience-mediated behavioral escalation. Left panel: TUB adoption rate by trip number. Right panels: outcome trajectories for all modes (dark line) vs.\ STD/ECO only (blue dashed). The gap between lines quantifies TUB-mediated effects: 60--72\% for safety outcomes, 18--27\% for dynamics.}
+\label{fig:experience}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/robustness_subsampling.pdf}
-\caption{Subsampling stability analysis. Distribution of key odds ratios (TUB mode, age groups) across five independent random subsamples of 200,000 trips each. The coefficient of variation (CV) of the TUB mode OR is 1.2\%.}
-\label{fig:robust_subsample}
+\includegraphics[width=\textwidth]{v2/fig8_survival_multi_endpoint.pdf}
+\caption{Multi-endpoint Kaplan-Meier survival curves stratified by TUB usage. Left: first harsh event. Center: first high-CV trip (note: TUB is protective due to mechanical speed capping reducing CV). Right: first speeding event (non-TUB users median never reached).}
+\label{fig:survival}
 \end{figure}
+
+\section{Event Study Details}
+\label{sec:appendix_event}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/robustness_city_models.pdf}
-\caption{City-specific logistic regression results. TUB mode odds ratios estimated separately for each of the five largest cities (Seoul, Daejeon, Busan, Daegu, Suwon), showing consistency of the mode effect across urban contexts (OR range: 70--207).}
-\label{fig:robust_city}
+\includegraphics[width=\textwidth]{v2/fig_supp_event_study.pdf}
+\caption{Event study: monthly treatment-intensity interaction coefficients for each outcome (reference: November 2023). The vertical red line indicates the TUB ban (December). Pre-period coefficients are generally close to zero; the December coefficient is the treatment effect.}
+\label{fig:event_study}
 \end{figure}
 
-\section{Extension Analysis Figures}
-\label{sec:appendix_extensions}
-
-% --- Experience / Newcomer ---
+\section{Outcome Distributions}
+\label{sec:appendix_dist}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_experience_learning_curve.pdf}
-\caption{Speeding learning curves by operating mode. Speeding prevalence as a function of cumulative trip rank, stratified by operating mode (TUB, STD, ECO). The monotonic increase is driven primarily by riders in TUB mode.}
-\label{fig:experience_curve}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_newcomer_speed_trajectory.pdf}
-\caption{Speed trajectory over riders' first 50 trips. Speeding rate increases from 7.0\% on the first trip to 26.0\% by trip~50, a 19-percentage-point increase.}
-\label{fig:newcomer_trajectory}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_newcomer_mode_adoption.pdf}
-\caption{Evolution of operating mode share over riders' first 50 trips. TUB mode adoption increases from 11.5\% at trip~1 to 47.8\% by trip~50, while STD mode decreases from 69.5\% to 42.5\%.}
-\label{fig:mode_adoption}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_newcomer_vs_established.pdf}
-\caption{Newcomer ($\leq$ 30 days) vs.\ established ($>$ 30 days) rider comparison by operating mode. The newcomer--established speeding gap is negligible within STD and ECO modes, confirming that the experience effect operates through mode adoption.}
-\label{fig:newcomer_established}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_experience_usage_category.pdf}
-\caption{Speeding prevalence by usage category. One-time riders: 2.3\% speeding; super-heavy riders (200+ trips): 19.0\%.}
-\label{fig:usage_category}
-\end{figure}
-
-% --- Distance and Road Composition ---
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_distance_speeding_curve.pdf}
-\caption{Distance--speeding relationship. LOWESS curve with distance decile points showing monotonic increase from 13.9\% (shortest decile, median 149~m) to 54.2\% (longest decile, median 2,168~m).}
-\label{fig:distance_curve}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_distance_spline_predicted.pdf}
-\caption{Restricted cubic spline predicted speeding probabilities as a function of log-distance, from Model~7 (pseudo-$R^2 = 0.387$).}
-\label{fig:distance_spline}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_road_composition_or.pdf}
-\caption{Forest plot of road class composition odds ratios from the distance--road class logistic regression (Model~7). Service roads (OR = 2.74) and tertiary roads (OR = 2.05) are risk factors; primary (OR = 0.13) and secondary (OR = 0.20) roads are protective.}
-\label{fig:road_or}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_distance_roadclass_heatmap.pdf}
-\caption{Heatmap of speeding rates by distance decile and dominant road class, showing the interaction between trip distance and road infrastructure.}
-\label{fig:distance_road_heatmap}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_speed_drift.pdf}
-\caption{Within-trip speed drift (second-half minus first-half mean speed) by distance bin. Riders slow down on average by 1.5~km/h in the second half. Drift is strongest for short trips ($-2.4$~km/h) and diminishes with distance.}
-\label{fig:speed_drift}
-\end{figure}
-
-% --- Curvature ---
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_curvature_speeding_rate.pdf}
-\caption{Speeding rate by curvature class. Trip shares: straight (5.1\%), mixed (45.0\%), curvy (49.9\%). The difference across classes is modest (29--32\%); the stronger gradient appears in the continuous quintile specification (Figure~\ref{fig:curvature_continuous}).}
-\label{fig:curvature_rate}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_curvature_continuous.pdf}
-\caption{LOWESS curve of speeding prevalence as a function of continuous curvature (mean absolute turning angle). Speeding decreases monotonically with curvature.}
-\label{fig:curvature_continuous}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_curvature_risk_scatter.pdf}
-\caption{Curvature--speeding risk paradox. Scatter plot of composite risk score (speed excess $\times$ curvature) showing that when speeding occurs on curvy roads, the risk score is approximately 5$\times$ higher than on straight roads.}
-\label{fig:curvature_risk}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_curvature_roadclass.pdf}
-\caption{Speeding rate by curvature class and dominant road class. Heatmap showing the interaction between trajectory curvature and road infrastructure on speeding prevalence.}
-\label{fig:curvature_roadclass}
-\end{figure}
-
-% --- SHAP ---
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_shap_bar.pdf}
-\caption{SHAP mean absolute feature importance from the LightGBM model (Model~8, AUC = 0.905). TUB mode dominates with mean $|\text{SHAP}| = 2.33$, 3.6$\times$ the next feature (log-distance, 0.64).}
-\label{fig:shap_bar}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_shap_summary.pdf}
-\caption{SHAP beeswarm plot for the LightGBM speeding model. Each point represents a single prediction; color indicates feature value (red = high, blue = low); horizontal position indicates SHAP value (positive = increases speeding probability).}
-\label{fig:shap_beeswarm}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_shap_dependence.pdf}
-\caption{SHAP dependence plots for the top six features. The plots reveal non-linear effects: the distance effect saturates for very long trips, and the acceleration effect exhibits threshold behavior.}
-\label{fig:shap_dependence}
-\end{figure}
-
-% --- DiD Causal Analysis (Supplementary) ---
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_did_dec_transition.pdf}
-\caption{City-level December 2023 transition: scatter plot of TUB share reduction versus speeding rate change for each city. The tight linear relationship ($r = 0.78$, $n = 50$ cities with $>$1,000 November trips) confirms the dose-response pattern at the city level.}
-\label{fig:did_dec_transition}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_did_city_trends.pdf}
-\caption{Mode-specific speeding rate trends for the top 6 cities by trip volume (February--December 2023). TUB-mode speeding (red) drops to near-zero in December while STD (blue) and ECO (green) remain flat, confirming that the speeding reduction is driven entirely by TUB mode removal.}
-\label{fig:did_city_trends}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_did_parallel_trends.pdf}
-\caption{City-level speeding rate trends with TUB share overlay for the top 6 cities. Blue line: overall speeding rate (\%); red shading: TUB mode share (\%). The co-movement between TUB share and speeding is visible across all cities.}
-\label{fig:did_parallel_trends}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.9\textwidth]{figures/fig_did_summary_v2.pdf}
-\caption{Summary of causal effect estimates from four DiD models, all normalized to the effect per 10 percentage point change in TUB share. Error bars show 95\% confidence intervals (cluster-robust for TWFE and event study; bootstrapped for dose-response). All four estimates are consistent: approximately 5 percentage points of speeding reduction per 10 percentage points of TUB share.}
-\label{fig:did_summary}
-\end{figure}
-
-% --- Mode-Switcher Analysis ---
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_mode_switcher.pdf}
-\caption{Mode-switcher analysis: composition vs.\ compensation. Four panels compare ``switchers'' (37,024 users who used TUB pre-ban and rode STD/ECO in December) with ``never-TUB'' riders (79,668 users). (a) December 2023 STD/ECO mean speed distributions. (b) Pre-ban (October--November) STD/ECO speed distributions showing the pre-existing gap ($d = 0.24$, small). (c) Within-user speed change distributions; the user-level DiD is $+0.20$~km/h ($d = 0.069$, negligible). (d) Effect size summary across metrics, confirming that all differences are negligible to small. The analysis rules out risk compensation: switchers do not ride faster in STD/ECO mode after losing TUB access.}
-\label{fig:mode_switcher}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_mode_switcher_placebo.pdf}
-\caption{User-level placebo test for mode-switcher analysis. (a) Distribution of within-user speed changes between August--September and October 2023 (no policy change). The placebo DiD is $-0.08$~km/h ($d = 0.03$, negligible). (b) Comparison of placebo and treatment DiD effects, confirming that the December speed change is attributable to the TUB ban rather than differential seasonal trends between user groups.}
-\label{fig:mode_switcher_placebo}
+\includegraphics[width=\textwidth]{v2/fig_supp_distributions.pdf}
+\caption{Violin plots of outcome distributions by operating mode (50,000 trips per mode). Black line: mean; white line: median. Harsh event distributions are highly right-skewed; cruise fraction and zero-speed fraction are approximately beta-distributed.}
+\label{fig:distributions}
 \end{figure}

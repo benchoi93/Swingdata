@@ -1,61 +1,70 @@
 \section{Methods}
 \label{sec:methodology}
 
-\subsection{Speed Indicators}
-\label{sec:meth_indicators}
+\subsection{Outcome Definitions}
+\label{sec:meth_outcomes}
 
-For each trip $i$ with onboard speed vector $\mathbf{v}_i = (v_{i1}, \ldots, v_{iT_i})$ recorded at approximately 10-second intervals, we compute: mean speed $\bar{v}_i$, maximum speed $v_i^{\max}$, 85th percentile speed (P85), speed coefficient of variation ($\text{CV}_i = \sigma_i / \bar{v}_i$), and binary speeding indicator $\text{is\_speeding}_i = \mathbf{1}(v_i^{\max} > 25~\text{km/h})$ based on the South Korean regulatory limit. We also compute the speeding rate (fraction of speed readings exceeding 25~km/h), harsh acceleration count ($|a| > 0.5$~m/s$^2$, calibrated for the $\sim$10-second GPS interval), and cruise fraction (proportion of readings within $\pm$3~km/h of the median speed). User-level aggregates include speeding propensity (fraction of trips with any speeding), mode usage distribution, cumulative trip count, and experience measures.
+For each trip $i$ with onboard speed vector $\mathbf{v}_i = (v_{i1}, \ldots, v_{iT_i})$ recorded at approximately 10-second intervals, we compute eight primary behavioral outcomes organized into three categories:
 
-\subsection{Cross-Sectional Model: Logistic GEE}
+\textit{Safety.} Harsh acceleration count: the number of consecutive-point acceleration events exceeding 0.5~m/s$^2$, where acceleration is computed as $a_{it} = (v_{i,t+1} - v_{it}) \times (1000/3600) / 10$. The threshold is calibrated for the $\sim$10-second GPS interval (a standard 2~m/s$^2$ threshold yields near-zero events at this sampling rate). Harsh deceleration count is computed analogously with $a_{it} < -0.5$~m/s$^2$. Speed coefficient of variation: $\text{CV}_i = \sigma(\mathbf{v}_i) / \bar{v}_i$.
+
+\textit{Demand.} Trip distance (meters) and travel time (seconds) are recorded directly by the platform. At the city-month level, trip count and active user count serve as demand-side indicators.
+
+\textit{Riding dynamics.} Cruise fraction: the proportion of speed readings within $\pm$3~km/h of the trip mean speed, capturing steady-state riding. Zero-speed fraction: the proportion of speed readings equal to zero, capturing stop-and-go behavior.
+
+Mean speed, maximum speed, and 85th percentile speed are computed as \textit{manipulation checks}: they confirm the governor's mechanical effect but are not treated as primary findings, as speed reduction under a speed cap is tautological.
+
+\subsection{Cross-Sectional Behavioral Profiles}
 \label{sec:meth_gee}
 
-We model binary speeding as a function of operating mode and controls via logistic regression with generalized estimating equations (GEE) to account for within-user correlation \citep{zeger1986longitudinal}:
+We model each primary outcome as a function of operating mode and controls via generalized estimating equations (GEE) to account for within-user correlation \citep{zeger1986longitudinal}:
 \begin{equation}
-    \text{logit}\big(P(\text{is\_speeding}_i = 1)\big) = \beta_0 + \beta_1 \text{TUB}_i + \beta_2 \text{ECO}_i + \boldsymbol{x}_i^{\top} \boldsymbol{\gamma}
+    g\big(E[Y_i]\big) = \beta_0 + \beta_1 \text{STD}_i + \beta_2 \text{ECO}_i + \boldsymbol{x}_i^{\top} \boldsymbol{\gamma}
     \label{eq:gee}
 \end{equation}
-where STD is the reference mode and $\boldsymbol{x}_i$ includes age group, time of day, day type (weekday/weekend), city fixed effects, fraction of trip on major roads, and log-transformed trip distance. We specify exchangeable working correlation and cluster by user ID. The key parameter of interest is $\exp(\beta_1)$, the odds ratio for speeding in TUB relative to STD mode. Robust (sandwich) standard errors are used throughout.
+where TUB is the reference mode, $g(\cdot)$ is the link function (log link with Poisson family for count outcomes; identity link with Gaussian family for continuous outcomes), and $\boldsymbol{x}_i$ includes age group, time of day, day type (weekday/weekend), city fixed effects, fraction of trip on major roads, and log-transformed trip distance. We specify exchangeable working correlation and cluster by user ID. Robust (sandwich) standard errors are used throughout. Separate GEE models are estimated for each of the eight outcomes plus the manipulation check (mean speed). A random subsample of 200,000 trips (reservoir sampling) is used for computational feasibility.
+
+Within-subject paired comparisons are conducted for users who rode in multiple modes. For each user who took trips in both TUB and STD (or TUB and ECO), we compute the user-level mean of each outcome in each mode and report the paired difference with Cohen's $d$ effect sizes.
 
 \subsection{Feature Importance: LightGBM with SHAP}
 \label{sec:meth_shap}
 
-To validate the parametric GEE findings and assess relative feature importance without distributional assumptions, we train a LightGBM gradient-boosted tree classifier on a stratified subsample of $\sim$2 million trips (80/20 train-test split, 5-fold cross-validation). The feature set includes all GEE covariates plus speed profile features (CV, cruise fraction, zero-speed fraction) and road class composition fractions (22 features total). Model performance is evaluated via AUC. SHAP (SHapley Additive exPlanations) values \citep{lundberg2017unified} are computed on the test set to quantify each feature's contribution to speeding predictions, providing a model-agnostic ranking of feature importance.
+To assess relative feature importance without distributional assumptions, we train separate LightGBM models for three outcome categories: safety (binary: any harsh event), dynamics (cruise fraction, continuous), and safety (speed CV, continuous). Each model uses a 300,000-trip subsample with features including mode indicators, log-distance, road class, age group, time of day, and day type. SHAP (SHapley Additive exPlanations) values \citep{lundberg2017unified} are computed on a 5,000-trip subset to quantify each feature's contribution, providing model-agnostic rankings of feature importance across outcome categories.
 
-\subsection{Experience Analysis}
-\label{sec:meth_experience}
-
-To understand how speeding evolves with rider experience, we compute each user's cumulative trip rank across the February--November 2023 period and estimate a GEE logistic regression:
-\begin{equation}
-    \text{logit}\big(P(\text{is\_speeding}_i = 1)\big) = \beta_0 + \beta_1 \log(\text{trip\_rank}_i) + \beta_2 \text{TUB}_i + \boldsymbol{x}_i^{\top} \boldsymbol{\gamma}
-    \label{eq:experience}
-\end{equation}
-clustered by user, with controls for mode, age, and temporal variables. The coefficient $\beta_1$ captures the experience--speeding gradient. To decompose this gradient, we separately analyze: (a) the relationship between experience and TUB mode adoption, (b) speeding trends within STD/ECO modes only, and (c) a mediation analysis quantifying the percentage of the experience effect attributable to mode adoption versus within-mode behavioral change.
-
-\subsection{Difference-in-Differences: Causal Identification}
+\subsection{Multi-Outcome Difference-in-Differences}
 \label{sec:meth_did}
 
-In December 2023, Swing banned TUB mode system-wide. Because cities varied in pre-ban TUB adoption, we exploit this variation in a two-way fixed effects (TWFE) DiD design. The panel comprises 53 cities $\times$ 11 months (February--December 2023). Our primary specification is:
+The December 2023 TUB ban provides causal identification. We construct a city-month panel (52 cities $\times$ 11 months, February--December 2023) and estimate a two-way fixed effects (TWFE) DiD for each outcome separately:
 \begin{equation}
-    Y_{ct} = \alpha_c + \gamma_t + \beta \cdot (\text{Post}_t \times \text{TUB}^{\text{Nov}}_c) + \epsilon_{ct}
+    Y_{ct}^{(j)} = \alpha_c + \gamma_t + \beta^{(j)} \cdot (\text{Post}_t \times \text{TUB}^{\text{Nov}}_c) + \epsilon_{ct}
     \label{eq:twfe}
 \end{equation}
-where $Y_{ct}$ is the city-month speeding rate, $\alpha_c$ and $\gamma_t$ are city and month fixed effects, $\text{Post}_t = \mathbf{1}(t = \text{Dec 2023})$, and $\text{TUB}^{\text{Nov}}_c$ is the November 2023 TUB mode share in city $c$ (continuous treatment intensity). Observations are weighted by $\sqrt{N_{ct}}$ (square root of trip count) and standard errors are clustered by city \citep{arellano1987computing}. The parameter $\beta$ estimates the causal effect: a city with 50\% pre-ban TUB share is expected to experience a $0.5 \times \beta$ change in speeding rate.
+where $Y_{ct}^{(j)}$ is the mean of outcome $j$ in city $c$ at month $t$, $\alpha_c$ and $\gamma_t$ are city and month fixed effects, $\text{Post}_t = \mathbf{1}(t = \text{Dec~2023})$, and $\text{TUB}^{\text{Nov}}_c$ is the November 2023 TUB mode share in city $c$ (continuous treatment intensity). Standard errors are clustered by city. The parameter $\beta^{(j)}$ estimates the causal effect of governor imposition on outcome $j$.
 
-We assess parallel trends via an event study specification:
+We estimate Equation~\ref{eq:twfe} for all six primary outcomes plus two demand outcomes (trip count, active user count), yielding eight tests. To control the family-wise error rate, we apply Bonferroni correction with $\alpha_{\text{Bonf}} = 0.05/8 = 0.00625$.
+
+Parallel trends are assessed via an event study specification:
 \begin{equation}
-    Y_{ct} = \alpha_c + \gamma_t + \sum_{k \neq \text{Nov}} \delta_k \cdot \mathbf{1}(t = k) \cdot \text{TUB}^{\text{Nov}}_c + \epsilon_{ct}
+    Y_{ct}^{(j)} = \alpha_c + \gamma_t + \sum_{k \neq \text{Nov}} \delta_k^{(j)} \cdot \mathbf{1}(t = k) \cdot \text{TUB}^{\text{Nov}}_c + \epsilon_{ct}
     \label{eq:event_study}
 \end{equation}
-with November as the reference period. Pre-period coefficients $\delta_k$ for $k < \text{Nov}$ are tested jointly ($F$-test) for parallel trends \citep{roth2022pretest}. We also estimate a dose-response relationship by regressing city-level speeding reduction (Nov $\rightarrow$ Dec) on TUB share reduction, with bootstrapped 95\% confidence intervals (10,000 replications).
+with November as the reference period. Dose-response is estimated by regressing city-level outcome changes (November $\rightarrow$ December) on TUB share changes, with bootstrapped 95\% confidence intervals (1,000 replications). A placebo test applies the TWFE specification using September 2023 as a fictitious treatment date, restricting to February--November.
 
-\subsection{Robustness and Behavioral Compensation}
-\label{sec:meth_robustness}
+\subsection{Compensation Test: Within-User Mode-Switcher Design}
+\label{sec:meth_compensation}
 
-Three robustness checks address potential threats to causal validity. First, a \textbf{placebo test} applies the TWFE specification using September 2023 as a fictitious treatment date (restricting to February--October). A null result ($p > 0.05$) supports the identifying assumption. Second, \textbf{heterogeneity analysis} estimates the treatment effect separately for city-size quartiles. Third, a \textbf{de-trended event study} absorbs linear pre-trends to address the February--March ramp-up period.
+To distinguish behavioral compensation from pool composition, we conduct a within-user mode-switcher analysis. ``Switchers'' are users who used TUB in October--November 2023 (pre-ban) and rode STD/ECO in December (post-ban). ``Never-TUB'' users are those who never used TUB in any month. For each user in both groups, we compute the mean of each outcome in STD/ECO trips during the pre-period (October--November) and post-period (December), then estimate a user-level DiD:
+\begin{equation}
+    \text{DiD}^{(j)} = \overline{\Delta Y}_{\text{switcher}}^{(j)} - \overline{\Delta Y}_{\text{never-TUB}}^{(j)}
+    \label{eq:switcher_did}
+\end{equation}
+where $\Delta Y$ is the within-user pre-post change. Significance is assessed via Welch's $t$-test on the deltas; effect sizes are reported as Cohen's $d$. A user-level placebo test using August--September $\rightarrow$ October (no treatment) validates the design.
 
-To test for behavioral compensation, we estimate a \textbf{multi-outcome DiD} on five outcomes: (1) overall speeding rate, (2) trip distance, (3) STD/ECO-only speeding rate, (4) STD/ECO mean speed, and (5) STD/ECO maximum speed. If compensation occurs, outcomes 3--5 should show significant increases. We additionally conduct a \textbf{mode-switcher analysis}: among users who switched from TUB to STD/ECO after the ban (``switchers'') versus users who never used TUB (``never-TUB''), we compute within-user pre-post speed changes via a user-level DiD, reporting Cohen's $d$ effect sizes. A within-user placebo test using October 2023 as a fictitious ban confirms that any detected effects are treatment-driven.
+The key distinction: if the STD/ECO-only DiD (Section~\ref{sec:meth_did}) shows significant effects but the within-user switcher DiD shows negligible Cohen's $d$, the aggregate change is attributable to \textit{composition} (former TUB users joining the STD/ECO pool are inherently different riders) rather than \textit{compensation} (individual riders adjusting behavior).
 
-\subsection{Survival Analysis: Time-to-First-Speeding}
-\label{sec:meth_survival}
+\subsection{Behavioral Escalation: Experience Mediation and Survival}
+\label{sec:meth_escalation}
 
-We model the time (in trips) to a user's first speeding event using survival analysis. The sample includes all users with $\geq$2 trips during February--November 2023. The event is the first trip where $v_i^{\max} > 25$~km/h; users who never speed are right-censored. Kaplan-Meier curves stratified by TUB usage (ever-TUB vs.\ never-TUB) are compared via the log-rank test. A Cox proportional hazards model estimates hazard ratios for TUB usage, age, and trip count. To address the endogeneity of TUB adoption timing, we additionally fit a Cox model with TUB adoption as a \textbf{time-varying covariate}: for each user-trip observation, TUB status indicates whether the user has adopted TUB by that trip. This captures the within-user effect of TUB adoption on speeding onset. Finally, we decompose the experience--speeding gradient by comparing hazard functions with and without TUB adoption to estimate the percentage of the experience effect mediated by mode choice.
+We analyze how riding behavior evolves with experience. For each user, trips are ranked chronologically and grouped into experience bins ($1, 2, 3, 4{-}5, 6{-}10, \ldots, 101{-}200$ trips). At each bin, we compute: (a)~TUB adoption rate, (b)~mean of each outcome across all modes, and (c)~mean of each outcome in STD/ECO modes only. The gap between (b) and (c) quantifies the TUB-mediated component of the experience effect. We report mediation percentages for each outcome.
+
+Multi-endpoint survival analysis models time (in trips) to three first events: (1)~first harsh event (any harsh acceleration or deceleration), (2)~first high-CV trip (speed CV $>$ 75th percentile), and (3)~first speeding trip (max speed $>$ 25~km/h). Kaplan-Meier curves stratified by TUB usage (ever-TUB vs.\ never-TUB) are compared via the log-rank test. Cox proportional hazards models estimate hazard ratios for TUB usage indicators (ever-TUB indicator and TUB usage fraction).

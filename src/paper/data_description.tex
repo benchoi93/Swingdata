@@ -6,16 +6,16 @@
 
 Swing is one of the largest shared e-scooter operators in South Korea, serving over 50 cities with fleets of electric scooters and electric bicycles. During 2023, Swing offered three scooter operating modes on identical hardware: TUB (turbo), STD (standard), and ECO (economy). All three modes use the same vehicle models---the software-based speed governor is the only differentiator. TUB mode imposes no effective speed governor, allowing riders to reach the vehicle's maximum mechanical speed. STD mode enforces a soft governor at approximately 25~km/h, and ECO mode enforces a stricter governor at approximately 20~km/h. Riders select their preferred mode at the start of each trip via the Swing mobile application; mode choice is unrestricted and can vary trip to trip.
 
-This configuration creates a within-operator natural experiment. Because the hardware is identical across modes, any speed differences between TUB, STD, and ECO trips can be attributed to the software governor rather than to vehicle characteristics, road conditions, or infrastructure---isolating the governor as the treatment.
+This configuration creates a within-operator natural experiment. Because the hardware is identical across modes, any behavioral differences between TUB, STD, and ECO trips can be attributed to the software governor rather than to vehicle characteristics, road conditions, or infrastructure---isolating the governor as the treatment.
 
 \subsection{Dataset}
 \label{sec:data_dataset}
 
-Our primary dataset comprises GPS-instrumented e-scooter trips from February through November 2023. Each trip record contains the full GPS trajectory (latitude, longitude, timestamp triples at $\sim$10-second intervals), a per-trip speed vector from the vehicle's onboard sensor recorded at each GPS point, trip metadata (vehicle model, operating mode, distance, duration), and anonymized user identifiers. Speed data from the onboard sensor were validated against GPS-derived speeds on a random subsample; sensor readings provide reliable per-point speed measurements suitable for regulatory compliance analysis.
+Our primary dataset comprises GPS-instrumented e-scooter trips from February through November 2023. Each trip record contains the full GPS trajectory (latitude, longitude, timestamp triples at $\sim$10-second intervals), a per-trip speed vector from the vehicle's onboard sensor recorded at each GPS point, trip metadata (vehicle model, operating mode, distance, duration), and anonymized user identifiers. Speed data from the onboard sensor were validated against GPS-derived speeds on a random subsample; sensor readings provide reliable per-point speed measurements suitable for behavioral analysis.
 
-After quality filtering---removing moped-class vehicles, invalid GPS coordinates outside Korean bounds (lat 33--39$^\circ$, lon 124--132$^\circ$), trips with fewer than 5 GPS points, and implausible maximum speeds exceeding 50~km/h---the dataset contains approximately 21~million valid trips from $\sim$1.8~million unique users across 52 cities and 17 provinces. User demographics (age) were obtained from a separate trip-level dataset and linked via anonymized user identifiers; age data are available for approximately 90\% of users (median age 25, mean 28 years). To our knowledge, this is the largest dataset of e-scooter trips with per-point speed profiles analyzed in the academic literature.
+After quality filtering---removing moped-class vehicles, invalid GPS coordinates outside Korean bounds (lat 33--39$^\circ$, lon 124--132$^\circ$), trips with fewer than 5 GPS points, and implausible maximum speeds exceeding 50~km/h---the dataset contains 19,454,309 valid scooter trips from 1,001,459 unique users across 52 cities and 17 provinces. User demographics (age) were obtained from a separate trip-level dataset and linked via anonymized user identifiers; age data are available for approximately 90\% of users (median age 24, mean 28 years). To our knowledge, this is the largest dataset of e-scooter trips with per-point speed profiles analyzed in the academic literature.
 
-For road infrastructure association, we extracted OpenStreetMap (OSM) road networks for all cities using \texttt{osmnx} \citep{boeing2017osmnx} and assigned each GPS point to the nearest road edge via a KD-tree spatial index. This yields per-trip road class composition features (fraction on residential, tertiary, service, primary roads, etc.), enabling infrastructure-controlled analyses. Trip origins were assigned to cities using a KD-tree nearest-neighbor approach with Korean city centers.
+For road infrastructure association, we extracted OpenStreetMap (OSM) road networks for all 50 cities using \texttt{osmnx} \citep{boeing2017osmnx} and assigned each trip's start point to the nearest road edge via a KD-tree spatial index. This yields per-trip road class features enabling infrastructure-controlled analyses.
 
 \subsection{The December 2023 TUB Ban}
 \label{sec:data_event}
@@ -24,18 +24,44 @@ In December 2023, Swing removed TUB mode system-wide across all cities in respon
 
 Critically, the treatment intensity varies across cities. Pre-ban TUB adoption ranged from approximately 32\% to 70\% of trips depending on the city, creating substantial cross-city variation in the ``dose'' of governor imposition. Cities with higher pre-ban TUB share experienced a larger proportional shift toward governed modes, enabling a dose-response analysis within the difference-in-differences framework.
 
-For the causal analysis, we extend the dataset to include December 2023, constructing a city-month panel of 53 cities $\times$ 11 months (February--December 2023; 563 observations after excluding cities with incomplete data). All cross-sectional analyses use the pre-ban period only (February--November 2023).
+For the causal analysis, we extend the dataset to include December 2023, constructing a city-month panel of 52 cities $\times$ 11 months (February--December 2023; 549 observations). All cross-sectional analyses use the pre-ban period only (February--November 2023).
 
 \subsection{Descriptive Statistics}
 \label{sec:data_descriptive}
 
-[Table 1 and descriptive statistics to be computed from the full Feb--Nov 2023 dataset. Will include: trip counts by mode, mean/max/P85 speeds, speeding rates, user demographics, and city-level variation. To be filled after Phase 0 data preparation is complete.]
+Table~\ref{tab:descriptive} presents descriptive statistics for the eight primary behavioral outcomes and three manipulation-check variables, stratified by operating mode. TUB mode accounts for 52.3\% of trips (10.2 million), STD for 42.7\% (8.3 million), and ECO for 5.0\% (0.97 million). The manipulation check confirms the expected speed gradient: TUB trips average 15.7~km/h (max 24.8~km/h), STD trips 13.4~km/h (max 20.7~km/h), and ECO trips 10.7~km/h (max 16.4~km/h).
 
-% Placeholder for Table 1
-%\begin{table}[htbp]
-%\centering
-%\caption{Descriptive statistics by operating mode (February--November 2023).}
-%\label{tab:descriptive}
-%\small
-%[TO BE FILLED]
-%\end{table}
+\begin{table}[htbp]
+\centering
+\caption{Descriptive statistics by operating mode (February--November 2023, $N = 19{,}454{,}309$ trips).}
+\label{tab:descriptive}
+\small
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Category} & \textbf{Variable} & \textbf{TUB} & \textbf{STD} & \textbf{ECO} \\
+ & & ($n = 10.2$M) & ($n = 8.3$M) & ($n = 0.97$M) \\
+\midrule
+\multicolumn{5}{l}{\textit{Manipulation check (mechanical)}} \\
+ & Mean speed (km/h) & 15.72 (4.25) & 13.42 (3.71) & 10.66 (3.01) \\
+ & Max speed (km/h) & 24.84 (2.73) & 20.67 (2.42) & 16.39 (2.54) \\
+ & P85 speed (km/h) & 23.21 (3.03) & 19.51 (3.02) & 15.31 (2.55) \\
+\addlinespace
+\multicolumn{5}{l}{\textit{Safety outcomes (genuinely behavioral)}} \\
+ & Harsh accel (count/trip) & 0.480 (0.82) & 0.232 (0.53) & 0.020 (0.15) \\
+ & Harsh decel (count/trip) & 0.675 (0.96) & 0.332 (0.63) & 0.020 (0.15) \\
+ & Speed CV & 0.564 (0.17) & 0.558 (0.19) & 0.564 (0.23) \\
+\addlinespace
+\multicolumn{5}{l}{\textit{Demand outcomes}} \\
+ & Trip distance (m) & 928 (603) & 777 (528) & 656 (453) \\
+ & Travel time (s) & 354 (204) & 350 (205) & 422 (266) \\
+\addlinespace
+\multicolumn{5}{l}{\textit{Riding dynamics outcomes}} \\
+ & Cruise fraction & 0.259 (0.14) & 0.320 (0.15) & 0.417 (0.16) \\
+ & Zero-speed fraction & 0.155 (0.09) & 0.155 (0.09) & 0.167 (0.10) \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize Values are mean (SD). Harsh acceleration threshold: 0.5~m/s$^2$ (calibrated for $\sim$10s GPS intervals).} \\
+\multicolumn{5}{l}{\footnotesize Cruise fraction: proportion of speed readings within $\pm$3~km/h of trip mean.} \\
+\end{tabular}
+\end{table}
+
+Several patterns are immediately apparent. Safety outcomes show strong mode differentiation: TUB trips average 0.48 harsh acceleration and 0.68 harsh deceleration events per trip, compared to 0.23 and 0.33 for STD, and 0.02 and 0.02 for ECO---differences spanning an order of magnitude. In contrast, speed CV is nearly identical across modes (0.56--0.56), suggesting that speed variability \textit{relative to mean speed} is a rider characteristic rather than a mode effect. Demand outcomes reveal modest differences: TUB trips are approximately 19\% longer (928~m vs.~777~m for STD) but travel time is virtually identical (354~s vs.~350~s), indicating that TUB riders cover more distance in the same time. Riding dynamics show clear patterns: cruise fraction increases from 0.26 (TUB) to 0.42 (ECO), reflecting more stable speed maintenance under stronger governance, while zero-speed fraction is similar across modes (0.15--0.17).
