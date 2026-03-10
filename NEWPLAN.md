@@ -1,8 +1,8 @@
 # Paper Plan: Speed Governor Mandate for E-Scooters
 
-**Target venue:** Accident Analysis & Prevention (AAP)
+**Target venue:** Analytic Methods in Accident Research (AMAR)
 **Template:** Elsevier CAS single-column (`cas-sc.cls`)
-**Target length:** ~7,000 words (AAP typical: 6,000-8,000)
+**Target length:** ~8,000-10,000 words (AMAR typical; methods-heavy papers welcome)
 **Working directory:** `src/paper/` (synced to Overleaf via git subtree)
 
 ---
