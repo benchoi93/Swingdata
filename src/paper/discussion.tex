@@ -1,12 +1,17 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{One Lever, Many Margins: A Selective Response}
+\subsection{Predictive Power of Cross-Sectional Analysis}
+\label{sec:disc_predictive}
+
+The most striking finding is the perfect concordance between cross-sectional predictions and causal validation: all six predictions derived from observational behavioral profiling are confirmed by the natural experiment (Table~\ref{tab:validation}). This concordance has methodological significance beyond the specific policy context. It demonstrates that cross-sectional multi-outcome profiling---comparing behavioral outcomes across concurrent policy regimes on identical hardware---can accurately forecast which margins will respond to policy changes and which will not.
+
+The key discriminator is outcome sensitivity to mode. Outcomes with large GEE mode effects and high SHAP importance (harsh acceleration $\beta = -0.61$, harsh deceleration $\beta = -0.63$) responded causally to the TUB ban. Outcomes with small mode effects and low SHAP importance (speed CV $\beta = -0.02$, SHAP $= 0.03$) showed null causal effects. This pattern suggests a practical rule: the cross-sectional mode effect size serves as a leading indicator for the causal policy response. Cities or operators considering governor mandates could use observational behavioral profiling as a pre-implementation assessment tool---characterizing which safety, demand, and dynamics margins are mode-sensitive before the policy change occurs.
+
+\subsection{Selective Response Across Margins}
 \label{sec:disc_selective}
 
-Our multi-outcome framework reveals that speed governance produces a remarkably \textit{selective} behavioral response. The single policy lever (capping maximum speed) causally reduces acceleration aggressiveness---harsh acceleration and deceleration events drop significantly after the TUB ban, surviving Bonferroni correction---while leaving demand (trip counts, active users), riding dynamics (cruising patterns, stop-and-go behavior), and speed variability completely unaffected. This selectivity is confirmed across three independent analytical approaches: cross-sectional GEE models show the same pattern (mode effects dominate safety outcomes but not dynamics), SHAP feature importance confirms that mode is the primary driver of harsh events but not of speed CV or cruise fraction, and the causal DiD isolates the same selective effect.
-
-The convergence across methods---cross-sectional, within-subject, causal, and machine learning---strengthens confidence in the finding. Each approach addresses the others' limitations: cross-sectional results could reflect self-selection into modes, but the DiD provides exogenous variation; the DiD is city-aggregate, but the within-subject comparisons and survival analysis operate at the individual level; the SHAP analysis is atheoretical, but confirms the parametric GEE rankings.
+Speed governance produces a remarkably \textit{selective} behavioral response. The single policy lever (capping maximum speed) causally reduces acceleration aggressiveness---harsh acceleration and deceleration events drop significantly after the TUB ban, surviving Bonferroni correction---while leaving demand (trip counts, active users), riding dynamics (cruising patterns, stop-and-go behavior), and speed variability completely unaffected. The predict-then-validate framework makes this selectivity more than a post hoc observation: the cross-sectional evidence \textit{predicted} exactly which margins would respond, transforming a descriptive finding into a validated forecasting result.
 
 \subsection{No Compensation: An Anti-Peltzman Result}
 \label{sec:disc_peltzman}
@@ -33,7 +38,7 @@ First, \textbf{mandatory speed governors} on all shared e-scooters. The causal e
 
 Second, \textbf{graduated mode access}. Restricting new riders to governed modes could interrupt the TUB adoption escalation pathway without requiring permanent mode restrictions. As riders demonstrate safe behavior, higher-speed modes could be unlocked---analogous to graduated driver licensing.
 
-Third, \textbf{multi-outcome evaluation frameworks} for speed management policies. Evaluating governors solely on speed compliance misses the genuinely behavioral responses that determine net safety impact. Our multi-outcome framework---mapping a single policy lever onto safety, demand, and dynamics margins---provides a template for evaluating other speed management interventions (geofencing, dynamic speed limits, incentive-based approaches).
+Third, \textbf{cross-sectional profiling as pre-implementation assessment}. Before mandating speed governors, regulators can deploy multi-outcome behavioral profiling to forecast which margins will respond and whether demand costs are likely. Our predict-then-validate results show that this approach works: the cross-sectional mode effect size accurately forecasts the causal policy effect across all six tested outcomes. This provides a practical template for evaluating other speed management interventions (geofencing, dynamic speed limits, incentive-based approaches) before implementation.
 
 \subsection{Limitations}
 \label{sec:disc_limitations}
