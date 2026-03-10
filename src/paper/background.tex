@@ -1,0 +1,50 @@
+\section{Background}
+\label{sec:background}
+
+\subsection{E-Scooter Safety and Speed-Related Injuries}
+\label{sec:bg_safety}
+
+The rapid expansion of shared e-scooters since 2017 has been accompanied by a well-documented surge in injuries. Hospital-based studies established that e-scooter injuries predominantly involve upper-extremity fractures and head trauma, with head injuries accounting for approximately 22\% of presentations \citep{trivedi2019injuries, badeau2019emergency, bloom2021standing}. Systematic reviews confirm these patterns: \citet{singh2022impact} found bony injuries as the most common type (39.2\%), while \citet{spota2024injury} identified two prevalent injury profiles---mild upper-limb injuries and severe head trauma. The economic burden is substantial, with \citet{kahan2024escooter} reporting annual e-scooter hospital charges of USD~10.4~million in a single US city.
+
+Speed is implicated as a primary risk factor across this literature. The power model of the speed--crash relationship \citep{elvik2013reexamination} predicts that injury severity increases as the fourth power of impact speed---a relationship especially consequential for unprotected e-scooter riders. \citet{yang2020safety} found that fatal e-scooter crashes disproportionately involved high-speed collisions with motor vehicles. Yet despite the central role of speed in crash severity, empirical evidence on actual riding speeds and regulatory compliance remains surprisingly sparse.
+
+\subsection{Speed Governance: Regulation Versus Technological Enforcement}
+\label{sec:bg_governance}
+
+Jurisdictions worldwide have imposed regulatory speed limits on e-scooters: 25~km/h in South Korea \citep{koreaherald2020escooter} and France, 20~km/h in Germany and the UK, and 15--25~km/h across US cities \citep{ma2021municipal, sexton2023shared}. These limits are typically enforced through two mechanisms: traffic regulations (penalties for exceeding the limit) and technological enforcement (software-based speed governors embedded in the vehicle firmware). In practice, traffic enforcement of e-scooter speed limits is rare---police resources are concentrated on motor vehicle enforcement, and speed cameras do not typically capture e-scooter license plates. This makes software governors the \textit{de facto} primary enforcement mechanism.
+
+Despite their prevalence, the empirical evidence base for governor effectiveness is thin. \citet{cicchino2023speed} measured 2,004 riders' speeds via roadside observation in two US cities with different speed limiter settings, finding that governor settings meaningfully affect behavior. However, between-city comparisons conflate governor effects with infrastructure and demographic differences. Technology-based speed management, including geofencing \citep{lime2023geofencing, caggiani2023geofencing}, has received growing attention as a policy tool, but large-scale behavioral evaluations remain limited \citep{neshagaran2024safety}. No study has evaluated governor effectiveness using within-operator variation---where identical hardware operates under different software speed limits---or provided causal evidence via an exogenous policy change.
+
+The broader question of behavioral compensation (risk homeostasis) is also unresolved. If riders compensate for governor-imposed limits by riding more aggressively on governed modes---for instance, braking later, accelerating harder, or seeking longer routes---the net safety benefit of governors could be attenuated. Speed variability, an independent risk indicator for micromobility \citep{twisk2021speed}, could increase even if maximum speeds are constrained. Testing for compensation requires comparing behavior \textit{within} governed modes before and after the removal of an ungoverned alternative---a design that the December 2023 TUB ban uniquely enables.
+
+\subsection{Natural Experiments in Transportation Safety}
+\label{sec:bg_natural}
+
+Natural experiments---where an exogenous event creates treatment and control conditions without researcher intervention---have a long history in transportation safety research. Speed limit changes on highways, helmet legislation, seatbelt mandates, and alcohol regulation have all been evaluated using before--after or difference-in-differences (DiD) designs \citep{elvik2013reexamination}. In the e-scooter domain, however, natural experiments are rare because policy changes typically affect all operators simultaneously within a jurisdiction, eliminating within-jurisdiction variation for causal identification.
+
+The December 2023 TUB ban by Swing presents an unusual opportunity. The policy change was system-wide (all 52 cities simultaneously), but the treatment intensity varied across cities because pre-ban TUB adoption rates differed substantially (32--70\% of trips). This creates a continuous treatment variable---cities with higher pre-ban TUB share experienced larger ``doses'' of governor imposition---enabling a dose-response design within a standard two-way fixed effects DiD framework. The staggered-adoption concerns that complicate many DiD applications \citep{roth2022pretest} do not apply here because the treatment date is identical across all cities.
+
+\subsection{Research Gaps}
+\label{sec:bg_gaps}
+
+Our review identifies three interconnected gaps. First, no prior study has analyzed e-scooter speed behavior at a scale sufficient to characterize population-level patterns---existing work relies on spot-speed observations ($n < 2{,}000$) or small naturalistic samples ($n < 500$ trips). Second, no \textit{causal} evidence exists for speed governor effectiveness; all prior comparisons are cross-sectional. Third, behavioral compensation after governor policy changes has not been tested. We address all three gaps using 21~million trips with continuous speed profiles, a natural experiment with a continuous treatment design, and multi-outcome DiD with within-user mode-switcher analysis. Table~\ref{tab:lit_comparison} positions our study relative to prior work.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparison with closely related studies on e-scooter speed behavior.}
+\label{tab:lit_comparison}
+\small
+\begin{tabular}{p{3.0cm}rrcccc}
+\toprule
+\textbf{Study} & \textbf{N} & \textbf{Cities} & \textbf{Speed data} & \textbf{Governor} & \textbf{Causal} & \textbf{Compensation} \\
+\midrule
+\citet{cicchino2023speed} & 2,004 & 2 & Spot & Between-city & No & No \\
+\citet{ma2021escooter} & $<$500 & 1 & Profile & No & No & No \\
+\citet{jiao2020shared} & 900K & 1 & None & No & No & No \\
+\citet{mckenzie2019spatiotemporal} & 137K & 1 & None & No & No & No \\
+\citet{neshagaran2024safety} & 2,400 & 2 & Observed & No & No & No \\
+\addlinespace
+\textbf{This study} & \textbf{21M} & \textbf{52} & \textbf{Profile} & \textbf{Within-operator} & \textbf{DiD} & \textbf{Yes} \\
+\bottomrule
+\end{tabular}
+\end{table}

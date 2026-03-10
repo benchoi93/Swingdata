@@ -1,48 +1,63 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Key Findings and Interpretation}
-\label{sec:disc_findings}
+\subsection{Converging Evidence for Speed Governor Mandates}
+\label{sec:disc_convergence}
 
-Our analysis reveals several findings with significant implications for micromobility safety policy, organized around the convergence of evidence from nine complementary models.
+% TO BE FILLED: Synthesize three evidence lines
+% (1) Cross-sectional: OR=121, SHAP dominance, experience mediation
+% (2) Causal: DiD beta=-0.568, dose-response r=0.754, placebo null
+% (3) Survival: HR=10.41, 5.4x onset delay
+% Key argument: convergence across methods strengthens confidence
+% Each approach addresses the other's weaknesses:
+%   - Cross-sectional has self-selection -> DiD provides exogenous variation
+%   - DiD is city-aggregate -> survival is individual-level
+%   - All three point to the same conclusion: governors work
 
-The most consequential finding is the overwhelming dominance of the operating mode. TUB mode increases speeding odds by 121$\times$, and the within-subject paired analysis demonstrates that the speed governor reduces speeding from 7.4\% to 0.38\% with large effect sizes ($d = 1.0$--$2.2$). The modest change in speed variability ($d = 0.22$) suggests that governors compress the speed distribution without substantially altering riding dynamics. The DiD analysis of the December 2023 TUB ban strengthens this to causal evidence: each 10~pp TUB reduction produces a 5.0~pp speeding reduction (95\% CI: [4.1, 7.4]). While the parallel trends test formally fails, the pre-trend is \textit{positive} (conservative direction), and the treatment effect is 3--4$\times$ larger than pre-period variation. This convergence across correlational, within-subject, predictive, and quasi-experimental designs provides a robust basis for policy.
+[To be filled.]
 
-A natural concern is whether former TUB riders compensate by riding faster in STD/ECO mode after losing TUB access. We address this through a user-level mode-switcher analysis (Figure~\ref{fig:mode_switcher}, Appendix). Among 37,024 ``switchers'' (TUB users pre-ban who rode STD/ECO in December) and 79,668 ``never-TUB'' riders, the within-user DiD speed change is $+0.20$~km/h ($d = 0.069$, negligible)---switchers do not accelerate their STD/ECO riding after losing TUB access. Critically, switchers' speeding rate \textit{decreased} more than never-TUB riders ($-1.71$~pp vs. $-0.27$~pp), ruling out risk compensation. The observed aggregate STD/ECO speed increase is entirely a composition effect: inherently faster riders (pre-ban gap: 0.65~km/h, $d = 0.24$) joining the STD pool raises the pool average without individual behavioral change. A placebo test comparing August--September versus October 2023 (no treatment) yields a DiD of $-0.08$~km/h ($|d| = 0.03$, negligible; Figure~\ref{fig:mode_switcher_placebo}, Appendix), confirming that the December finding is treatment-driven rather than a seasonal artifact. The convergence of null compensation at both aggregate (behavioral substitution DiD) and individual (mode-switcher DiD) levels provides strong evidence that speed governors reduce speeding without inducing compensatory behavior.
-
-The spatial analysis confirms that speeding concentrates in specific locations (Moran's $I$: 0.16--0.71, all $p < 0.001$). The hurdle model reveals a nuanced cycling infrastructure effect: it reduces speeding probability (OR $= 0.71$) but increases intensity when speeding occurs ($\beta = 1.14$)---consistent with dedicated paths providing uninterrupted environments that both encourage moderate speeds and enable sustained speeding. This has design implications: cycling infrastructure should incorporate speed-calming features.
-
-The four rider typologies (40\% Safe, 26\% Moderate-Risk, 26\% Habitual Speeders, 8\% Stop-and-Go) underscore heterogeneity: uniform speed reductions may be unnecessarily restrictive for the majority while insufficient for the high-risk minority. The experience analysis reveals that speeding escalation is primarily mediated by mode adoption (TUB usage: 11.5\% at trip~1 $\rightarrow$ 47.8\% at trip~50) rather than within-mode behavior changes, motivating graduated mode access policies. The curvature risk paradox---lower speeding prevalence but 5$\times$ higher risk when speeding occurs---implies dual enforcement targeting both straight (prevalent) and curvy (dangerous) segments. The SHAP analysis validates all parametric findings model-agnostically.
-
-\subsection{Policy Implications}
+\subsection{Policy Recommendations}
 \label{sec:disc_policy}
 
-Our findings support several specific and actionable policy recommendations.
+% TO BE FILLED: Three actionable recommendations
+% (1) Mandatory speed governors: OR=121 + 28pp causal reduction
+%     Enforcement mechanism matters more than specific threshold
+%     25 km/h with governor produces far less speeding than 25 km/h without
+% (2) Graduated mode access: Experience-speeding gradient mediated by TUB adoption
+%     New riders should be restricted to governed modes
+%     Analogous to graduated driver licensing
+% (3) Context-sensitive geofencing: Spatial clustering supports zone-based management
+%     Hotspot-targeted rather than uniform city-wide limits
+%     No compensation concern: riders don't ride faster when governed
 
-\textbf{Mandatory speed governors.} Both individual-level (20-fold speeding reduction) and population-level (28~pp reduction for high-TUB cities) evidence support mandatory speed limiting. Our data suggest the \textit{enforcement mechanism} matters more than the threshold: a 25~km/h limit with governors produces far less speeding than without.
-
-\textbf{Geofencing.} Spatial clustering supports zone-based speed management using our hotspot maps for targeted geofence design rather than uniform city-wide restrictions.
-
-\textbf{Infrastructure design.} Cycling infrastructure reduces speeding probability but should incorporate speed-calming features to address the conditional intensity effect on long, straight segments.
-
-\textbf{Targeted enforcement.} The 26\% Habitual Speeder class accounts for most speeding, supporting graduated penalties over uniform restrictions.
-
-\textbf{Graduated mode access.} Progressive TUB adoption (11.5\% $\rightarrow$ 47.8\% over 50 trips) motivates restricting new riders to governed modes, analogous to graduated driver licensing.
+[To be filled.]
 
 \subsection{Comparison with Prior Literature}
 \label{sec:disc_comparison}
 
-Our 29.6\% speeding rate is broadly consistent with \citet{cicchino2023speed}, who found 41\% of Austin riders exceeding 16~km/h, though our continuous profiles provide more precise estimates. The non-monotonic age gradient (lowest risk at 30--34) has not been previously documented for e-scooters and may reflect life-stage effects. The operating mode's explanatory power has no direct precedent---prior studies lacked within-operator mode variation. Our within-subject design substantially strengthens the between-city evidence from \citet{cicchino2023speed}. The four-class typology extends prior survey-based segmentation \citep{degele2018identifying} with objectively observed behavioral indicators.
+% TO BE FILLED: Position relative to existing work
+% - Cicchino et al. (2023): roadside observation, 2,004 riders, between-city
+%   Our within-operator design eliminates city-level confounds
+% - Ma et al. (2021): naturalistic, <500 trips, single city
+%   We scale 42,000x with continuous speed profiles
+% - Speed-crash power model (Elvik 2013): theoretical basis, we provide empirical confirmation
+% - Behavioral compensation literature: our null finding aligns with Peltzman critique
+%   but provides e-scooter-specific evidence
+% Table from background.tex positions our study
+
+[To be filled.]
 
 \subsection{Limitations}
 \label{sec:disc_limitations}
 
-Several limitations should be considered when interpreting our results.
+% TO BE FILLED: Honest assessment of limitations
+% (1) Single operator: Swing only, Korean context, may differ elsewhere
+% (2) No crash outcomes: speed as proxy, not direct injury linkage
+% (3) GPS measurement: ~10s interval smooths short events
+% (4) Self-selection in mode choice: addressed by DiD but not fully eliminated
+% (5) Mode-switcher attrition: ~50% of classified users had both pre/post trips
+%     Placebo null mitigates concern, but selection bias possible
+% (6) Pre-trend in event study: formally fails parallel trends test
+%     Mitigated by: positive direction (conservative), de-trended spec, placebo
 
-\textbf{Single operator and temporal coverage.} Data come from Swing only; other operators may differ. The primary trajectory dataset covers May 2023; seasonal variation is only partially captured by the 24-month extension (speed data available from February 2023 only).
-
-\textbf{Measurement limitations.} The $\sim$10-second GPS interval smooths short-duration speed events. Onboard sensor speeds show strong internal consistency ($r = 1.0$ for max speed) but cannot be independently verified. We lack crash outcome data, analyzing speed as a safety proxy based on established speed-severity relationships.
-
-\textbf{Endogeneity.} Mode choice may be endogenous (riders intending to speed select TUB), complicating causal interpretation from the within-subject analysis alone. However, the DiD analysis of the exogenous TUB ban largely addresses this concern. Korea-specific regulations and urban context may limit direct international generalizability, though the methodology is fully transferable.
-
-\textbf{Sample selection in mode-switcher analysis.} Of approximately 240,000 users classified as switchers or never-TUB, only 117,000 (49\%) had both pre-ban and post-ban STD/ECO trips and entered the analytical sample. The approximately 50\% attrition may reflect seasonal churn, users ceasing e-scooter use entirely after the ban, or infrequent riding. If users who stopped riding were systematically different from continuers (e.g., TUB-dependent riders who had no interest in governed modes), this could introduce selection bias. However, the placebo test's null result ($d = 0.03$) suggests that the surviving sample does not exhibit differential pre-treatment trends.
+[To be filled.]
