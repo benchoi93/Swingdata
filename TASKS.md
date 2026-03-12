@@ -52,12 +52,12 @@ Uses Dec 2023 TUB ban as natural experiment.
 
 ## Phase 4: Block 4 — Behavioral Escalation Pathway (Priority: HIGH)
 
-- [x] 4.1 Mediation: harsh_accel 71.9%, mean_speed 65.6%, harsh_decel 59.1% mediated via TUB. Dynamics <20%. Script: `src/v2/escalation_pathway.py`.
+- [x] 4.1 Mediation: harsh_accel 70.0% [65.3, 74.8], mean_speed 63.2% [58.2, 66.0], harsh_decel 57.0% [53.4, 60.4] mediated via TUB (bootstrap 500 iter, 50K users). Dynamics: speed_cv 26.0%, cruise 20.6%, zero_speed 18.4%. Script: `src/v2/escalation_pathway.py`, `src/v2/bootstrap_mediation.py`.
 - [x] 4.2 Experience curves: TUB adoption 23% (trip 1) -> 69.5% (trip 101-200). Fig: `figures/v2/fig7_experience_trajectories.pdf`.
 - [x] 4.3 Survival: 3 endpoints (harsh event, high-CV, speeding). 127K users, 200K sample. Script: `src/v2/escalation_pathway.py`.
 - [x] 4.4 KM curves: speeding median TUB=7 vs non-TUB=inf. Fig: `figures/v2/fig8_survival_multi_endpoint.pdf`.
 - [x] 4.5 Cox PH: speeding HR(ever_tub)=5.73, C=0.819. Harsh event HR(tub_frac)=2.13. High-CV HR(tub_frac)=0.80 (protective — TUB caps speed mechanically).
-- [x] 4.6 Mediation summary: safety outcomes 60-72% mediated by TUB adoption; dynamics 18-27%. Report: `data_parquet/v2/phase4_escalation.json`.
+- [x] 4.6 Mediation summary: safety outcomes 57-70% mediated by TUB adoption (bootstrap CIs all exclude zero); dynamics 18-27%. Report: `data_parquet/v2/phase4_escalation.json`, `data_parquet/v2/bootstrap_mediation.json`.
 
 ## Phase 5: Narrative Selection & Paper Writing (Priority: HIGH — after Phases 1-4)
 
@@ -77,7 +77,7 @@ Uses Dec 2023 TUB ban as natural experiment.
 - [x] 6.1 Bib verification: ALL 54 entries verified (done in previous session + 3 new entries added).
 - [x] 6.2 Figure cross-refs: all resolve (confirmed via pdflatex with 0 undefined ref warnings).
 - [x] 6.3 Word count: 5,642 text + 395 captions = ~6,037 total. Slightly below 8K target — room for expansion.
-- [ ] 6.4 Proofread for AMAR style: methods-forward, econometric rigor.
+- [x] 6.4 Proofread for AMAR style: methods-forward, econometric rigor. 6 fixes: title consistency (Verify→Validate), P4 prediction justification, survival HR footnote, highlights.tex update, GEE table footnote, TWFE criticism acknowledgment + Goodman-Bacon (2021) ref added.
 - [x] 6.5 Final Overleaf push: done.
 
 ---
