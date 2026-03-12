@@ -3,7 +3,7 @@ Bootstrap confidence intervals for TUB mediation percentages.
 
 Resamples users (not trips) with replacement to preserve within-user
 correlation structure. Computes mediation % for each outcome across
-1000 bootstrap iterations, reports 95% percentile CIs.
+500 bootstrap iterations, reports 95% percentile CIs.
 
 Also extracts Schoenfeld residual correlation direction for Cox PH models
 to determine whether TUB effect intensifies or attenuates over the trip sequence.
