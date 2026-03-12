@@ -212,11 +212,11 @@ P6 & No compensation & All $|d| < 0.14$ & Max $d = 0.133$ & Confirmed \\
 
 \subsubsection{Experience-mediation analysis}
 
-TUB adoption increases monotonically with experience: from 23.0\% of trips at trip~1 to 69.5\% at trips~101--200 (Figure~\ref{fig:experience}). The adoption curve is concave, accelerating sharply during the first 20--30 trips before plateauing. This pattern suggests a learning-and-selection process: new riders initially use the default governed mode, discover TUB (likely through peer influence or in-app exploration), and progressively shift their mode preferences.
+TUB adoption increases monotonically with experience: from 23.0\% of trips at trip~1 to 69.5\% at trips~101--200 (Figure~\ref{fig:experience}). The adoption curve is concave, rising steeply during the first 20--30 trips before plateauing. This pattern suggests a learning-and-selection process: new riders initially use the default governed mode, discover TUB (likely through peer influence or in-app exploration), and progressively shift their mode preferences.
 
 This adoption trajectory mediates the experience-outcome gradient differently across outcome categories, revealing the mechanism behind the experience-risk gradient:
 
-Safety outcomes are heavily mediated by TUB adoption. Harsh acceleration shows 71.9\% mediation (the experience-related increase in harsh events is largely explained by increasing TUB usage), mean speed 65.6\%, and harsh deceleration 59.1\%. In contrast, dynamics outcomes are less mediated: speed CV 26.8\%, cruise fraction 19.9\%, zero-speed fraction 17.5\%. The differential mediation rates are consistent with the cross-sectional SHAP analysis (Section~\ref{sec:res_prediction}): outcomes for which mode is the dominant predictor are highly mediated, while outcomes driven by trip characteristics or traffic conditions are not.
+Safety outcomes are heavily mediated by TUB adoption. Bootstrap confidence intervals (500 iterations, user-level resampling) confirm the mediation estimates are precise: harsh acceleration shows 70.0\% mediation (95\% CI: [65.3, 74.8]), mean speed 63.2\% [58.2, 66.0], and harsh deceleration 57.0\% [53.4, 60.4]. In contrast, dynamics outcomes are less mediated: speed CV 26.0\% [22.7, 29.4], cruise fraction 20.6\% [18.5, 22.8], zero-speed fraction 18.4\% [15.5, 20.8]. All CIs exclude zero, confirming that TUB adoption mediates the experience-outcome gradient across all margins, but the safety--dynamics gap is robust: the lower bound of the harsh acceleration CI (65.3\%) exceeds the upper bound of the highest dynamics outcome (speed CV, 29.4\%). The differential mediation rates are consistent with the cross-sectional SHAP analysis (Section~\ref{sec:res_prediction}): outcomes for which mode is the dominant predictor are highly mediated, while outcomes driven by trip characteristics or traffic conditions are not.
 
 The implication is that experienced riders' higher harsh event rates are primarily a mode selection story---they choose TUB more---not an inherent change in riding aggressiveness within a given mode. To verify this, we compute within-mode experience gradients: among STD-only trips, the difference in harsh acceleration between trip~1 and trip~100+ is only 0.04 events per trip, compared to 0.18 events per trip in the pooled sample. The experience-risk gradient is 78\% attenuated once mode selection is controlled, confirming mediation as the primary pathway.
 
@@ -244,7 +244,8 @@ First speeding & 66.1\% & 7 / $\infty$ trips & 60,963 & 8.13$^\ddagger$ \\
 \multicolumn{5}{l}{\footnotesize $^*$Protective: TUB users take longer to reach high-CV events (mechanical, not behavioral).} \\
 \multicolumn{5}{l}{\footnotesize $^\ddagger$HR for tub\_frac (continuous); binary ever\_tub HR $= 5.73$ ($C = 0.819$), reported in text.} \\
 \multicolumn{5}{l}{\footnotesize $\infty$ = median not reached (>50\% of non-TUB users never speed). All log-rank $p < 0.001$.} \\
-\multicolumn{5}{l}{\footnotesize Schoenfeld residual tests indicate PH violations for tub\_frac in all three models ($p < 0.001$);} \\
-\multicolumn{5}{l}{\footnotesize HRs should be interpreted as average effects over the trip sequence (see Section~\ref{sec:disc_limitations}).} \\
+\multicolumn{5}{l}{\footnotesize Schoenfeld residual tests indicate PH violations for tub\_frac in all three models ($p < 0.001$).} \\
+\multicolumn{5}{l}{\footnotesize Schoenfeld--time correlations are negative (tub\_frac: $\rho = -0.11$ to $-0.15$), indicating HRs attenuate} \\
+\multicolumn{5}{l}{\footnotesize over the trip sequence. HRs represent average effects (see Section~\ref{sec:disc_limitations}).} \\
 \end{tabular}
 \end{table}
