@@ -26,6 +26,17 @@ where TUB is the reference mode, $g(\cdot)$ is the link function (log link with 
 
 Within-subject paired comparisons are conducted for users who rode in multiple modes. For each user who took trips in both TUB and STD (or TUB and ECO), we compute the user-level mean of each outcome in each mode and report the paired difference with Cohen's $d$ effect sizes.
 
+\subsubsection{Individual fixed effects}
+
+To address potential endogeneity from rider self-selection into modes, we supplement the GEE with individual fixed effects (FE) models that absorb all time-invariant user characteristics (age, risk preference, riding skill):
+\begin{equation}
+    Y_{it} = \alpha_i + \beta_1 \text{STD}_{it} + \beta_2 \text{ECO}_{it} + \boldsymbol{x}_{it}^{\top} \boldsymbol{\gamma} + \epsilon_{it}
+    \label{eq:fe}
+\end{equation}
+where $\alpha_i$ is a user fixed effect, and $\boldsymbol{x}_{it}$ includes time of day, day type, road class (major road, cycling infrastructure), and log-transformed trip distance. Continuous outcomes are estimated via fixed-effects OLS (\texttt{feols}) and count outcomes via fixed-effects Poisson (\texttt{fepois}), implemented in \texttt{pyfixest} \citep{fischer2024pyfixest}. Standard errors are clustered at the user level (CRV1). A 2-million-trip subsample is used for computational feasibility; after removing singleton users (those with only one trip), approximately 1.8 million trips from 343{,}000 users remain.
+
+Comparing GEE and FE estimates provides a Hausman-style endogeneity diagnostic. If GEE and FE coefficients agree, between-user variation is exogenous and GEE is efficient. If they diverge---particularly if GEE yields larger mode effects---user self-selection inflates the cross-sectional estimates, and the FE within-user estimates are preferred for causal interpretation.
+
 \subsection{Feature Importance: LightGBM with SHAP}
 \label{sec:meth_shap}
 

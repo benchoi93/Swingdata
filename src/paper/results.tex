@@ -60,6 +60,50 @@ Mean speed (km/h) & $-1.942$ & $<0.001$ & $-4.221$ & $<0.001$ \\
 \end{tabular}
 \end{table}
 
+\subsubsection{Individual fixed effects vs.\ GEE}
+
+Table~\ref{tab:fe_vs_gee} presents individual FE estimates alongside the GEE results. All 12 mode--outcome comparisons maintain the same sign, confirming that mode effects are robust to controlling for time-invariant user heterogeneity. However, the magnitude of attenuation reveals an important pattern.
+
+Safety outcomes attenuate by 15--22\% under FE: harsh acceleration STD changes from $-0.61$ (GEE) to $-0.52$ (FE), and harsh deceleration STD from $-0.63$ to $-0.49$. This indicates that GEE overestimates safety effects because risk-seeking riders disproportionately select into TUB---a between-user confound that FE absorbs. Despite attenuation, all safety mode effects remain highly significant ($p < 0.001$).
+
+Dynamics outcomes show the opposite pattern: FE estimates are substantially \textit{larger} than GEE. Speed CV amplifies from $-0.022$ (GEE) to $-0.089$ (FE), and cruise fraction from $+0.061$ to $+0.112$. The GEE underestimates within-user mode effects on riding dynamics because between-user heterogeneity (e.g., inherently erratic vs.\ smooth riders choosing different modes) masks the within-user governance effect.
+
+The divergence between GEE and FE confirms endogeneity from mode self-selection: the Hausman diagnostic favors FE for causal interpretation of cross-sectional mode effects. The key substantive conclusion is unchanged: governance reduces acceleration aggressiveness (the primary safety concern) even after absorbing all time-invariant rider characteristics.
+
+\begin{table}[htbp]
+\centering
+\caption{GEE vs.\ individual fixed effects: mode coefficients (TUB = reference).}
+\label{tab:fe_vs_gee}
+\small
+\begin{tabular}{lrrrrl}
+\toprule
+\textbf{Outcome} & \textbf{Mode} & \textbf{GEE} & \textbf{FE} & \textbf{$\Delta$\%} & \textbf{Direction} \\
+\midrule
+\multicolumn{6}{l}{\textit{Safety (Poisson)}} \\
+Harsh accel & STD & $-0.610$ & $-0.520$ & $-14.8$ & Attenuated \\
+ & ECO & $-2.863$ & $-2.444$ & $-14.6$ & Attenuated \\
+Harsh decel & STD & $-0.627$ & $-0.490$ & $-21.8$ & Attenuated \\
+ & ECO & $-3.269$ & $-2.791$ & $-14.6$ & Attenuated \\
+\addlinespace
+\multicolumn{6}{l}{\textit{Safety (OLS/Gaussian)}} \\
+Speed CV & STD & $-0.022$ & $-0.089$ & $+301$ & Amplified \\
+ & ECO & $-0.039$ & $-0.130$ & $+234$ & Amplified \\
+\addlinespace
+\multicolumn{6}{l}{\textit{Dynamics (OLS/Gaussian)}} \\
+Cruise fraction & STD & $+0.061$ & $+0.112$ & $+82$ & Amplified \\
+ & ECO & $+0.160$ & $+0.238$ & $+49$ & Amplified \\
+Zero-speed frac. & STD & $-0.008$ & $-0.041$ & $+416$ & Amplified \\
+ & ECO & $-0.007$ & $-0.047$ & $+586$ & Amplified \\
+\addlinespace
+\multicolumn{6}{l}{\textit{Manipulation check (OLS/Gaussian)}} \\
+Mean speed & STD & $-1.942$ & $-0.855$ & $-56$ & Attenuated \\
+ & ECO & $-4.221$ & $-2.741$ & $-35$ & Attenuated \\
+\bottomrule
+\multicolumn{6}{l}{\footnotesize $\Delta$\%: percentage change from GEE to FE. Negative = FE smaller (attenuation); positive = FE larger.} \\
+\multicolumn{6}{l}{\footnotesize GEE: 200K subsample, exchangeable correlation. FE: 1.8M trips, user-clustered SEs. All $p < 0.001$.} \\
+\end{tabular}
+\end{table}
+
 \subsubsection{Predictions from cross-sectional evidence}
 
 Table~\ref{tab:predictions} formalizes six testable predictions derived from the cross-sectional patterns above. For each outcome, we state the cross-sectional evidence (mode effect size and direction) and the predicted causal response if TUB were removed. The logic is straightforward: outcomes that show strong mode dependence should respond causally to mode removal; outcomes that are mode-invariant should not.

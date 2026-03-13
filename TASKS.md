@@ -80,6 +80,44 @@ Uses Dec 2023 TUB ban as natural experiment.
 - [x] 6.4 Proofread for AMAR style: methods-forward, econometric rigor. 6 fixes: title consistency (Verify→Validate), P4 prediction justification, survival HR footnote, highlights.tex update, GEE table footnote, TWFE criticism acknowledgment + Goodman-Bacon (2021) ref added.
 - [x] 6.5 Final Overleaf push: done.
 
+## Phase 7: Model Enhancements (Priority: HIGH — collaborator feedback)
+
+Suggested by 한양대 collaborators: add built environment controls + individual FE.
+
+### 7A: Cycling Infrastructure Variable (Easy — restore from v1)
+
+**Context for agent:** v1 computed `frac_cycling_infra` in `src/assign_road_class.py:206-209` by counting GPS points matching OSM `cycleway` edges. v2 (`src/v2/assign_road_class_v2.py`) simplified to start-point-only matching with `is_major_road` binary. The 50 city OSM GeoPackage networks are already at `data_parquet/osm_networks/{city}.gpkg`. The `ROAD_CLASS_MAP` in v2 already maps `cycleway -> cycling`. **Approach:** For each trip's start point (already matched via KDTree), check if `start_road_class == "cycling"` to create `is_cycling_infra` binary. This is a 1-line derivation from existing data — no need to re-run the full GPS trace matching.
+
+- [x] 7A.1 Add `is_cycling_infra` column to `trip_modeling.parquet`: `start_road_class == 'cycleway'`. 255,047 trips (1.31%) on cycling infra. Script: `src/v2/add_cycling_infra.py`.
+- [x] 7A.2 Verify distribution: 1.31% overall (TUB 1.34%, STD 1.27%, ECO 1.31%). Within 1-3% expectation.
+- [x] 7A.3 Add `is_cycling_infra` as control in FE models: cruise +0.6% (p<0.001), zero_speed +0.5% (p<0.001), mean_speed +0.08 (p=0.003). Included in all 6 FE models.
+
+### 7B: Individual Fixed Effects (Medium — methodological upgrade)
+
+**Context for agent:** Current GEE (Task 1.2 in `src/v2/cross_sectional.py:155-260`) uses 200K sample with exchangeable correlation. Individual FE absorbs all time-invariant user traits (risk preference, skill, demographics), giving within-user causal interpretation. With 1M users, use `pyfixest` (demeaning approach, not dummy variables). Key spec: `outcome ~ mode_STD + mode_ECO + tod_* + is_weekend + is_major_road + is_cycling_infra + log_distance | user_id`. Reference categories: TUB (mode), midday (tod), weekday, 25-29 (age absorbed by FE). **Note:** age_group is time-invariant so it gets absorbed by user FE — cannot estimate its effect (this is expected and fine). Use full 19M dataset if pyfixest can handle it; otherwise sample 1-2M.
+
+- [x] 7B.1 Install `pyfixest` v0.40.1. Compatible with Python environment.
+- [x] 7B.2 Run individual FE models for 6 outcomes (2M sample, 1.8M after singleton removal). All converged, all mode effects p=0. FE OLS: speed_cv R2=0.335, cruise R2=0.296, zero_speed R2=0.347, mean_speed R2=0.540. FE Poisson: harsh_accel/decel converged. Script: `src/v2/individual_fe.py`. Output: `data_parquet/v2/phase7b_individual_fe.json`.
+- [x] 7B.3 Compare FE vs GEE: all 12 comparisons SAME direction. Safety attenuates ~15-18% (endogeneity via user selection), dynamics STRONGER under FE. Fig: `figures/v2/fig_fe_vs_gee.pdf`.
+- [x] 7B.4 Hausman-style: FE and GEE diverge substantially (mean_speed STD: GEE -1.94 vs FE -0.85; harsh_accel STD: GEE -0.61 vs FE -0.52). Endogeneity confirmed -> FE preferred. Key finding: mode effects SURVIVE individual FE, confirming causal interpretation.
+- [ ] 7B.5 Update paper Methods (4.2) and Results with FE results. Add FE vs GEE comparison table.
+
+### 7C: Land Use Variables (Hard — needs external data)
+
+**Context for agent:** We have NO land use data currently. Korean public data options: (1) 국토교통부 토지이용현황도 from data.go.kr — SHP files by municipality, (2) OSM `landuse` tags — likely sparse in Korea, (3) population density from 통계청 SGIS, (4) POI density. **Agent should RESEARCH ONLY in 7C.1 — do NOT download or implement without PI approval on data source.** Focus on 7A and 7B first; 7C is lower priority.
+
+- [ ] 7C.1 Research: what Korean land use data sources exist? Check OSM landuse tag coverage for our 52 cities (can query existing GeoPackages). Write findings to `reports/land_use_data_research.md`. **Research only — no implementation.**
+- [ ] 7C.2 PI decision: which land use proxy to use. **BLOCKED until 7C.1 reviewed.**
+- [ ] 7C.3 If approved: extract land use features per trip origin. Merge into modeling dataset.
+- [ ] 7C.4 Add land use controls to FE/GEE models.
+
+### 7D: Update Paper with New Variables
+
+- [x] 7D.1 Update Data & Setting section with new variables. Added `is_cycling_infra` description (1.3% of trips).
+- [x] 7D.2 Update Methods section with individual FE specification. Added Eq. 4 (FE), pyfixest citation, Hausman rationale.
+- [x] 7D.3 Update Results with FE estimates. Added Table 5 (FE vs GEE, 12 comparisons). Updated discussion limitations. Added pyfixest bib entry.
+- [ ] 7D.4 Push to Overleaf.
+
 ---
 
 ## Daily Agent Instructions
