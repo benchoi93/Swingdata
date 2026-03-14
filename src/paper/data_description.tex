@@ -15,7 +15,7 @@ Our primary dataset comprises GPS-instrumented e-scooter trips from February thr
 
 After quality filtering---removing moped-class vehicles, invalid GPS coordinates outside Korean bounds (lat 33--39$^\circ$, lon 124--132$^\circ$), trips with fewer than 5 GPS points, and implausible maximum speeds exceeding 50~km/h---the dataset contains 19,454,309 valid scooter trips from 1,001,459 unique users across 52 cities and 17 provinces. User demographics (age) were obtained from a separate trip-level dataset and linked via anonymized user identifiers; age data are available for approximately 90\% of users (median age 24, mean 28 years). To our knowledge, this is the largest dataset of e-scooter trips with per-point speed profiles analyzed in the academic literature.
 
-For road infrastructure association, we extracted OpenStreetMap (OSM) road networks for all 50 cities using \texttt{osmnx} \citep{boeing2017osmnx} and assigned each trip's start point to the nearest road edge via a KD-tree spatial index. This yields per-trip road class features enabling infrastructure-controlled analyses.
+For road infrastructure association, we extracted OpenStreetMap (OSM) road networks for all 50 cities using \texttt{osmnx} \citep{boeing2017osmnx} and assigned each trip's start point to the nearest road edge via a KD-tree spatial index. This yields two binary infrastructure controls: \texttt{is\_major\_road} (primary, secondary, or trunk road) and \texttt{is\_cycling\_infra} (dedicated cycleway or cycle lane). The latter captures 1.3\% of trips, evenly distributed across modes.
 
 \subsection{The December 2023 TUB Ban}
 \label{sec:data_event}
