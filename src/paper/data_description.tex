@@ -8,6 +8,13 @@ Swing is one of the largest shared e-scooter operators in South Korea, serving o
 
 This configuration creates a within-operator natural experiment. Because the hardware is identical across modes, any behavioral differences between TUB, STD, and ECO trips can be attributed to the software governor rather than to vehicle characteristics, road conditions, or infrastructure---isolating the governor as the treatment.
 
+\subsection{Regulatory Context}
+\label{sec:data_regulation}
+
+South Korea's regulatory framework for personal mobility devices (PMDs) evolved rapidly during 2020--2023. In December 2020, an amendment to the Road Traffic Act reclassified e-scooters as a type of bicycle, permitting operation on cycling paths and lowering the minimum age to 13 with no license requirement \citep{koreaherald2020escooter}. Mounting safety concerns---fueled by a surge in e-scooter-related injuries---prompted a swift reversal: from May 2021 onward, riders must hold at least a class-2 motorized bicycle driver's license (minimum age 16), and helmet use is mandatory, though enforcement remains limited \citep{koreaherald2021license}. Throughout this period, the national speed limit for PMDs has been 25~km/h on all road types.
+
+Our study period (February--November 2023) falls entirely within the post-May 2021 regulatory regime, providing a stable legal backdrop. Crucially, Swing's TUB mode allowed riders to exceed the 25~km/h regulatory speed limit---the software governor in STD and ECO modes enforced compliance, while TUB mode effectively left compliance to rider discretion. This creates a natural correspondence between mode choice and regulatory compliance: STD/ECO trips are mechanically compliant, while TUB trips routinely violate the speed limit (52.6\% of TUB trips exceed 25~km/h, compared with 1.1\% for STD and 0.0\% for ECO). The December 2023 TUB ban thus represents an operator-level enforcement of an existing regulatory speed limit, not a new speed restriction per se.
+
 \subsection{Dataset}
 \label{sec:data_dataset}
 
