@@ -1,17 +1,14 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Predictive Power of Cross-Sectional Analysis}
+\subsection{Predictive Power and Selective Response}
 \label{sec:disc_predictive}
 
 The most striking finding is the perfect concordance between cross-sectional predictions and causal validation: all six predictions derived from observational behavioral profiling are confirmed by the natural experiment (Table~\ref{tab:validation}). This concordance has methodological significance beyond the specific policy context. It demonstrates that cross-sectional multi-outcome profiling---comparing behavioral outcomes across concurrent policy regimes on identical hardware---can accurately forecast which margins will respond to policy changes and which will not.
 
 The key discriminator is outcome sensitivity to mode. Outcomes with large GEE mode effects and high SHAP importance (harsh acceleration $\beta = -0.61$, harsh deceleration $\beta = -0.63$) responded causally to the TUB ban. Outcomes with small mode effects and low SHAP importance (speed CV $\beta = -0.02$, SHAP $= 0.03$) showed null causal effects. This pattern suggests a practical rule: the cross-sectional mode effect size serves as a leading indicator for the causal policy response. Cities or operators considering governor mandates could use observational behavioral profiling as a pre-implementation assessment tool---characterizing which safety, demand, and dynamics margins are mode-sensitive before the policy change occurs.
 
-\subsection{Selective Response Across Margins}
-\label{sec:disc_selective}
-
-Speed governance produces a remarkably \textit{selective} behavioral response. The single policy lever (capping maximum speed) causally reduces acceleration aggressiveness---harsh acceleration and deceleration events drop significantly after the TUB ban, surviving Bonferroni correction---while leaving demand (trip counts, active users), riding dynamics (cruising patterns, stop-and-go behavior), and speed variability completely unaffected. The predict-then-validate framework makes this selectivity more than a post hoc observation: the cross-sectional evidence \textit{predicted} exactly which margins would respond, transforming a descriptive finding into a validated forecasting result.
+Speed governance thus produces a remarkably \textit{selective} behavioral response. The single policy lever (capping maximum speed) causally reduces acceleration aggressiveness---harsh acceleration and deceleration events drop significantly after the TUB ban, surviving Bonferroni correction---while leaving demand (trip counts, active users), riding dynamics (cruising patterns, stop-and-go behavior), and speed variability completely unaffected. The predict-then-validate framework makes this selectivity more than a post hoc observation: the cross-sectional evidence \textit{predicted} exactly which margins would respond, transforming a descriptive finding into a validated forecasting result.
 
 \subsection{No Compensation: An Anti-Peltzman Result}
 \label{sec:disc_peltzman}
@@ -23,6 +20,8 @@ The mode-switcher design cleanly separates composition from compensation---a dis
 This finding aligns with \citet{hedlund2000risky}, who argued that behavioral compensation is most plausible when the intervention is \textit{salient} (the user knows protection has increased) and the regulated behavior is \textit{voluntary}. Speed governors fail both conditions: they operate invisibly (riders on governed modes may not perceive any safety ``benefit'' from the cap), and the speed constraint is involuntary (the vehicle physically cannot exceed the limit). The seatbelt analogy is instructive: \citet{cohen2003effects} found that mandatory seatbelt laws reduced occupant fatalities without inducing measurable increases in risky driving, contra Peltzman's original prediction. Our result extends this pattern to a fundamentally different safety technology in a different mode: software-enforced speed limits on shared micromobility.
 
 The null compensation finding has important policy implications: governor mandates need not be tempered by concerns about offsetting behavioral responses. The safety benefit of reduced harsh events is a net gain, not partially offset by compensation on other margins. This is particularly noteworthy because the e-scooter context offered many unconstrained margins on which compensation \textit{could} have manifested: acceleration aggressiveness within governed modes, more erratic speed profiles, longer or more dangerous routes, or reduced trip frequency. None materialized.
+
+Our finding complements recent work by \citet{cicchino2023speed}, who found that lower speed-limiter caps (10~mph vs.\ 20~mph) increased sidewalk riding in Austin and Washington, D.C.---a behavioral displacement onto a \textit{different} margin (facility choice) that our GPS data do not capture. Together, these results suggest that speed governors produce targeted safety gains while behavioral responses, where they exist, manifest as specific facility-choice displacements rather than diffuse behavioral degradation across multiple riding margins. More broadly, the need for causal evaluation frameworks linking governance mechanisms to behavioral outcomes, identified by \citet{zhang2024regulation} in a comprehensive review of e-scooter regulation evidence, is directly addressed by our multi-outcome predict-then-validate approach.
 
 \subsection{TUB Adoption as an Escalation Pathway}
 \label{sec:disc_escalation}
@@ -50,13 +49,6 @@ First, \textbf{mandatory speed governors} on all shared e-scooters. The causal e
 Second, \textbf{graduated mode access}. Restricting new riders to governed modes could interrupt the TUB adoption escalation pathway without requiring permanent mode restrictions. As riders demonstrate safe behavior, higher-speed modes could be unlocked---analogous to graduated driver licensing.
 
 Third, \textbf{cross-sectional profiling as pre-implementation assessment}. Before mandating speed governors, regulators can deploy multi-outcome behavioral profiling to forecast which margins will respond and whether demand costs are likely. Our predict-then-validate results show that this approach works: the cross-sectional mode effect size accurately forecasts the causal policy effect across all six tested outcomes. This provides a practical template for evaluating other speed management interventions (geofencing, dynamic speed limits, incentive-based approaches) before implementation.
-
-\subsection{Comparison with Recent Literature}
-\label{sec:disc_literature}
-
-Our findings extend and contextualize several recent lines of inquiry. \citet{cicchino2023speed} examined how speed-limiter settings (10~mph vs.\ 20~mph caps) affect e-scooter rider behavior in Austin and Washington, D.C., finding that lower speed caps increased sidewalk riding---a behavioral displacement onto a different margin. Our study complements this by systematically testing \textit{multiple} behavioral margins under a single speed governance intervention, demonstrating that while harsh events respond strongly, speed variability, cruising dynamics, and demand remain unaffected. Together, these results suggest that speed governors produce targeted safety gains at the cost of specific compensatory displacements (sidewalk riding in the US context) rather than diffuse behavioral degradation.
-
-More broadly, a recent comprehensive review of e-scooter regulation evidence \citep{zhang2024regulation} identified the need for causal evaluation frameworks linking governance mechanisms to behavioral outcomes; our multi-outcome predict-then-validate approach addresses this gap directly.
 
 \subsection{Limitations}
 \label{sec:disc_limitations}
