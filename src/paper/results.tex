@@ -27,7 +27,7 @@ Cruise fraction shows a clear gradient: 0.259 (TUB), 0.320 (STD), 0.417 (ECO). G
 
 \subsubsection{Feature importance}
 
-LightGBM models with SHAP analysis (Figure~\ref{fig:shap}) reveal distinct feature importance hierarchies across outcome categories. For harsh events (binary classification, AUC = 0.734), the TUB mode indicator dominates (mean $|\text{SHAP}| = 0.49$), followed by ECO ($0.32$) and trip length ($0.25$). For speed CV (regression, $R^2 = 0.46$), log-distance ($0.12$) and trip duration ($0.11$) dominate, with TUB contributing only $0.03$---confirming that speed variability is primarily a trip-characteristic effect, not a mode effect. For cruise fraction ($R^2 = 0.25$), the pattern mirrors speed CV. These results validate the cross-sectional finding: governance affects \textit{safety} outcomes (acceleration aggressiveness) far more than \textit{dynamics} outcomes (riding patterns).
+LightGBM models with SHAP analysis (Figure~\ref{fig:shap}) reveal distinct feature importance hierarchies across outcome categories. For harsh events (binary classification, AUC = 0.734), the TUB mode indicator dominates (mean $|\text{SHAP}| = 0.49$), followed by ECO ($0.32$), trip duration ($0.29$), and trip distance ($0.25$). For speed CV (regression, $R^2 = 0.46$), log-distance ($0.12$) and trip duration ($0.11$) dominate, with TUB contributing only $0.03$---confirming that speed variability is primarily a trip-characteristic effect, not a mode effect. For cruise fraction ($R^2 = 0.25$), the pattern mirrors speed CV. These results validate the cross-sectional finding: governance affects \textit{safety} outcomes (acceleration aggressiveness) far more than \textit{dynamics} outcomes (riding patterns).
 
 \begin{table}[htbp]
 \centering
