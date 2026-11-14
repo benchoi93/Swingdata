@@ -100,13 +100,13 @@ Suggested by 한양대 collaborators: add built environment controls + individua
 - [x] 7B.2 Run individual FE models for 6 outcomes (2M sample, 1.8M after singleton removal). All converged, all mode effects p=0. FE OLS: speed_cv R2=0.335, cruise R2=0.296, zero_speed R2=0.347, mean_speed R2=0.540. FE Poisson: harsh_accel/decel converged. Script: `src/v2/individual_fe.py`. Output: `data_parquet/v2/phase7b_individual_fe.json`.
 - [x] 7B.3 Compare FE vs GEE: all 12 comparisons SAME direction. Safety attenuates ~15-18% (endogeneity via user selection), dynamics STRONGER under FE. Fig: `figures/v2/fig_fe_vs_gee.pdf`.
 - [x] 7B.4 Hausman-style: FE and GEE diverge substantially (mean_speed STD: GEE -1.94 vs FE -0.85; harsh_accel STD: GEE -0.61 vs FE -0.52). Endogeneity confirmed -> FE preferred. Key finding: mode effects SURVIVE individual FE, confirming causal interpretation.
-- [ ] 7B.5 Update paper Methods (4.2) and Results with FE results. Add FE vs GEE comparison table.
+- [x] 7B.5 Update paper Methods (4.2) and Results with FE results. Add FE vs GEE comparison table. *Completed as part of 7D.2-7D.3: FE spec in methodology.tex (Eq. 4), Table 5 in results.tex.*
 
 ### 7C: Land Use Variables (Hard — needs external data)
 
 **Context for agent:** We have NO land use data currently. Korean public data options: (1) 국토교통부 토지이용현황도 from data.go.kr — SHP files by municipality, (2) OSM `landuse` tags — likely sparse in Korea, (3) population density from 통계청 SGIS, (4) POI density. **Agent should RESEARCH ONLY in 7C.1 — do NOT download or implement without PI approval on data source.** Focus on 7A and 7B first; 7C is lower priority.
 
-- [ ] 7C.1 Research: what Korean land use data sources exist? Check OSM landuse tag coverage for our 52 cities (can query existing GeoPackages). Write findings to `reports/land_use_data_research.md`. **Research only — no implementation.**
+- [x] 7C.1 Research: what Korean land use data sources exist? Check OSM landuse tag coverage for our 52 cities (can query existing GeoPackages). Write findings to `reports/land_use_data_research.md`. **Research only — no implementation.** Empirical OSM tests: landuse polygons 14.5% match (Seoul), building density 99.6% match within 200m but 68.3% unclassified type. Recommended: MOLIT zoning (best) or SGIS business census (easiest). Report: `reports/land_use_data_research.md`.
 - [ ] 7C.2 PI decision: which land use proxy to use. **BLOCKED until 7C.1 reviewed.**
 - [ ] 7C.3 If approved: extract land use features per trip origin. Merge into modeling dataset.
 - [ ] 7C.4 Add land use controls to FE/GEE models.
@@ -116,7 +116,7 @@ Suggested by 한양대 collaborators: add built environment controls + individua
 - [x] 7D.1 Update Data & Setting section with new variables. Added `is_cycling_infra` description (1.3% of trips).
 - [x] 7D.2 Update Methods section with individual FE specification. Added Eq. 4 (FE), pyfixest citation, Hausman rationale.
 - [x] 7D.3 Update Results with FE estimates. Added Table 5 (FE vs GEE, 12 comparisons). Updated discussion limitations. Added pyfixest bib entry.
-- [ ] 7D.4 Push to Overleaf.
+- [x] 7D.4 Push to Overleaf. Pushed commit cd4eab9 (cycling infra description).
 
 ---
 

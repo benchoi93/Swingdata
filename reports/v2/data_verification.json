@@ -1,0 +1,105 @@
+{
+  "task": "0.7",
+  "n_rows": 19454309,
+  "checks": {
+    "completeness": {
+      "n_rows": 19454309,
+      "has_route_id": 19454309,
+      "has_user_id": 19454309,
+      "has_mode": 19454309,
+      "has_mean_speed": 19454309,
+      "has_speed_cv": 19454309,
+      "has_harsh_accel": 19454309,
+      "has_cruise": 19454309,
+      "has_distance": 19454309,
+      "has_city": 19454309,
+      "has_age": 19291520,
+      "has_road_class": 19454309,
+      "has_time_of_day": 19454309,
+      "has_day_type": 19454309
+    },
+    "ranges": {
+      "mean_speed": {
+        "min": null,
+        "max": 38.0,
+        "ok": true
+      },
+      "speed_cv": {
+        "min": null,
+        "max": 32.7109,
+        "ok": false
+      },
+      "harsh_accel_count": {
+        "min": null,
+        "max": 43.0,
+        "ok": true
+      },
+      "cruise_fraction": {
+        "min": null,
+        "max": 1.0,
+        "ok": true
+      },
+      "zero_speed_fraction": {
+        "min": null,
+        "max": 1.0,
+        "ok": true
+      },
+      "distance": {
+        "min": null,
+        "max": 156493.22545763437,
+        "ok": false
+      },
+      "age": {
+        "min": 7.0,
+        "max": 99.0,
+        "ok": false
+      },
+      "lat": {
+        "min": 33.23156178885936,
+        "max": 37.9418296,
+        "ok": true
+      },
+      "lon": {
+        "min": 126.3572922350153,
+        "max": 129.4533412,
+        "ok": true
+      }
+    },
+    "mode_distribution": {
+      "TUB": 10179142,
+      "STD": 8306018,
+      "ECO": 969149
+    },
+    "duplicates": {
+      "n_unique_routes": 19454309,
+      "n_duplicates": 0
+    },
+    "month_coverage": {
+      "2023-02": 687594,
+      "2023-03": 1508900,
+      "2023-04": 1552639,
+      "2023-05": 2321440,
+      "2023-06": 2783552,
+      "2023-07": 2215652,
+      "2023-08": 2291176,
+      "2023-09": 2248180,
+      "2023-10": 2243629,
+      "2023-11": 1601547
+    },
+    "speeding_consistency": {
+      "n_inconsistent": 0
+    },
+    "fraction_bounds": {
+      "bad_cruise": 0,
+      "bad_zero": 0,
+      "bad_cv": 0
+    }
+  },
+  "issues": [
+    "speed_cv range [0.0, 32.7109] outside expected [0, 10]",
+    "distance range [0.0, 156493.22545763437] outside expected [0, 100000]",
+    "age range [7, 99] outside expected [10, 100]"
+  ],
+  "all_passed": false,
+  "time_s": 1.5
+}
